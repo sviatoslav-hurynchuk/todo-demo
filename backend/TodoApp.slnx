@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Api/">
+    <Project Path="Api/TodoApp.Api.csproj" />
+  </Folder>
+  <Folder Name="/DataAccess/">
+    <Project Path="DataAccess/TodoApp.DataAccess.csproj" />
+  </Folder>
+  <Folder Name="/Interfaces/">
+    <Project Path="Interfaces/TodoApp.Interfaces.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="Services/TodoApp.Services.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,23 @@
+# Build & Binaries
+bin/
+obj/
+out/
+dist/
+.vs/
+.vscode/
+.idea/
+
+# Node & Angular dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Database files
+*.db
+*.sqlite
+
+# Environment & Settings
+appsettings.Development.json
+appsettings.Local.json
+*.user
+*.suo
