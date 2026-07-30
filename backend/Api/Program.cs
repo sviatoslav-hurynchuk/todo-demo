@@ -1,8 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using TodoApp.DataAccess.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Register 4-Tier services in Dependency Injection Container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
