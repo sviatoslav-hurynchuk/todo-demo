@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Interfaces\TodoApp.Interfaces.csproj" />
     <ProjectReference Include="..\DataAccess\TodoApp.DataAccess.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+  </ItemGroup>
 </Project>
