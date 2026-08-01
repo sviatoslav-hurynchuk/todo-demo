@@ -17,8 +17,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure JWT Authentication
-var secret = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForJwtTokenAuthentication12345!";
+// Configure JWT Authentication using User Secrets / Environment Variables
+var secret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrWhiteSpace(secret))
+{
+    throw new InvalidOperationException("JWT Secret is not configured in User Secrets or Environment Variables.");
+}
+
 var issuer = builder.Configuration["Jwt:Issuer"] ?? "TodoAppApi";
 var audience = builder.Configuration["Jwt:Audience"] ?? "TodoAppClient";
 
