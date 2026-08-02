@@ -56,7 +56,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// DI
+// Register Dependency Injection Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
