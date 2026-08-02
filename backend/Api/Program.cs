@@ -9,15 +9,12 @@ using TodoApp.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Controllers & Open API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Configure EF Core with SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure JWT Authentication using User Secrets / Environment Variables
 var secret = builder.Configuration["Jwt:Secret"];
 if (string.IsNullOrWhiteSpace(secret))
 {
@@ -49,7 +46,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configure CORS for Angular Frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
@@ -60,7 +56,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Register Dependency Injection Application Services
+// DI
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
