@@ -1,10 +1,10 @@
 language: "en-US"
 
 reviews:
-  profile: "chill"
+  profile: "assertive"
   request_changes_workflow: false
   high_level_summary: true
-  collapse_walkthrough: true
+  collapse_walkthrough: false
   poem: false
   auto_review:
     enabled: true
@@ -16,31 +16,22 @@ reviews:
     - "!**/obj/**"
     - "!**/dist/**"
     - "!**/build/**"
-    - "!.angular/**"
-    - "!.vs/**"
-    - "!.idea/**"
-    - "!package-lock.json"
     - "!*.db"
     - "!*.sqlite"
 
   path_instructions:
-    - path: "backend/**/*.cs"
+    - path: "**/*.cs"
       instructions: |
-        - Enforce strict 4-tier architecture boundaries:
-          * Presentation (Api): REST controllers, routing, HTTP response formatting, JWT auth pipeline.
-          * Application (Services): Business logic, DTO mappings, JWT generation, password hashing.
-          * Abstractions (Interfaces): DTO contracts and service/repository interfaces.
-          * Persistence (DataAccess): EF Core DbContext, IEntityTypeConfiguration classes, domain entities.
-        - Ensure EF Core best practices: proper indexing, cascade delete rules, avoiding N+1 queries, and using AsNoTracking() for read-only queries.
-        - Security: Verify JWT claims, BCrypt password hashing, and ensure no secrets are hardcoded in appsettings.json (use User Secrets / Env Vars).
+        - Review C# and .NET code for potential bugs, security flaws, performance bottlenecks, and adherence to 4-tier clean architecture principles.
+        - Ensure EF Core best practices (proper indexing, no N+1 queries, AsNoTracking for reads).
+        - Verify security: JWT token claims validation, BCrypt password hashing, and User Secrets usage.
 
-    - path: "frontend/src/app/**/*.ts"
+    - path: "**/*.ts"
       instructions: |
-        - Verify Angular best practices: strict TypeScript typing, Reactive Forms, RxJS memory leak prevention, Auth Guards, and JWT Interceptors.
-        - Ensure clear separation of concerns between core services, feature modules (auth, tasks, categories), and shared UI components.
+        - Review TypeScript and Angular code for strict type safety, Reactive Forms, RxJS memory management, Auth Guards, and JWT Interceptors.
 
     - path: "**/*"
       instructions: |
-        - Focus strictly on potential bugs, performance bottlenecks, security vulnerabilities, and type safety.
-        - Keep review comments concise, direct, and actionable. Avoid nitpicking minor formatting or obvious code style.
-        - Ensure all suggested commit messages adhere strictly to the Conventional Commits specification.
+        - Provide detailed, actionable line-by-line code review comments.
+        - Focus strictly on potential bugs, security vulnerabilities, and code quality.
+        - Ensure all suggested commit messages adhere strictly to Conventional Commits.
