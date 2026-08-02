@@ -14,7 +14,11 @@ public record LoginDto(
 );
 
 public record AuthResponseDto(
-    string Token,
+    string AccessToken,
     string Username,
     string Email
+);
+
+public record RevokeTokenRequest(
+    string? Token
 );

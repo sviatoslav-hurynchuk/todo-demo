@@ -4,6 +4,8 @@ namespace TodoApp.Interfaces;
 
 public interface IAuthService
 {
-    Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
-    Task<AuthResponseDto> LoginAsync(LoginDto dto);
+    Task<(AuthResponseDto Response, string RefreshToken)> RegisterAsync(RegisterDto dto, string ipAddress);
+    Task<(AuthResponseDto Response, string RefreshToken)> LoginAsync(LoginDto dto, string ipAddress);
+    Task<(AuthResponseDto Response, string RefreshToken)> RefreshTokenAsync(string refreshToken, string ipAddress);
+    Task RevokeTokenAsync(string refreshToken, string ipAddress);
 }
