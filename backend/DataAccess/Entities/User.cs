@@ -10,4 +10,5 @@ public class User
 
     public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     public ICollection<Category> Categories { get; set; } = new List<Category>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
