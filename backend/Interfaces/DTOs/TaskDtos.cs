@@ -1,4 +1,6 @@
-namespace TodoApp.Services.DTOs;
+using System.ComponentModel.DataAnnotations;
+
+namespace TodoApp.Interfaces.DTOs;
 
 public record TaskDto(
     int Id,
@@ -12,15 +14,15 @@ public record TaskDto(
 );
 
 public record CreateTaskDto(
-    string Title,
+    [Required, MinLength(1), MaxLength(255)] string Title,
     string? Description,
     DateTime? DueDate,
     int? CategoryId,
-    bool IsImportant
+    bool IsImportant = false
 );
 
 public record UpdateTaskDto(
-    string Title,
+    [Required, MinLength(1), MaxLength(255)] string Title,
     string? Description,
     bool IsCompleted,
     bool IsImportant,
