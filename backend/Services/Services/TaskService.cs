@@ -47,6 +47,7 @@ public class TaskService : ITaskService
         var items = await query
             .OrderByDescending(t => t.IsImportant)
             .ThenByDescending(t => t.CreatedAt)
+            .ThenBy(t => t.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(t => new TaskDto(
@@ -81,16 +82,7 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> CreateAsync(CreateTaskDto dto, int userId)
     {
-        if (dto.CategoryId.HasValue)
-        {
-            var categoryExists = await _context.Categories
-                .AnyAsync(c => c.Id == dto.CategoryId.Value && c.UserId == userId);
-
-            if (!categoryExists)
-            {
-                throw new KeyNotFoundException($"Category with id {dto.CategoryId.Value} not found.");
-            }
-        }
+        Category? category = await ValidateAndGetCategoryAsync(dto.CategoryId, userId);
 
         var task = new TaskItem
         {
@@ -98,6 +90,7 @@ public class TaskService : ITaskService
             Description = dto.Description?.Trim(),
             DueDate = dto.DueDate,
             CategoryId = dto.CategoryId,
+            Category = category,
             IsImportant = dto.IsImportant,
             UserId = userId,
             CreatedAt = DateTime.UtcNow
@@ -106,7 +99,6 @@ public class TaskService : ITaskService
         _context.Tasks.Add(task);
         await _context.SaveChangesAsync();
 
-        await _context.Entry(task).Reference(t => t.Category).LoadAsync();
         return MapToDto(task);
     }
 
@@ -121,16 +113,7 @@ public class TaskService : ITaskService
             throw new KeyNotFoundException($"Task with id {id} not found.");
         }
 
-        if (dto.CategoryId.HasValue)
-        {
-            var categoryExists = await _context.Categories
-                .AnyAsync(c => c.Id == dto.CategoryId.Value && c.UserId == userId);
-
-            if (!categoryExists)
-            {
-                throw new KeyNotFoundException($"Category with id {dto.CategoryId.Value} not found.");
-            }
-        }
+        Category? category = await ValidateAndGetCategoryAsync(dto.CategoryId, userId);
 
         task.Title = dto.Title.Trim();
         task.Description = dto.Description?.Trim();
@@ -138,10 +121,10 @@ public class TaskService : ITaskService
         task.IsImportant = dto.IsImportant;
         task.DueDate = dto.DueDate;
         task.CategoryId = dto.CategoryId;
+        task.Category = category;
 
         await _context.SaveChangesAsync();
 
-        await _context.Entry(task).Reference(t => t.Category).LoadAsync();
         return MapToDto(task);
     }
 
@@ -174,6 +157,24 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
 
         return MapToDto(task);
+    }
+
+    private async Task<Category?> ValidateAndGetCategoryAsync(int? categoryId, int userId)
+    {
+        if (!categoryId.HasValue)
+        {
+            return null;
+        }
+
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(c => c.Id == categoryId.Value && c.UserId == userId);
+
+        if (category is null)
+        {
+            throw new KeyNotFoundException($"Category with id {categoryId.Value} not found.");
+        }
+
+        return category;
     }
 
     private static TaskDto MapToDto(TaskItem task) => new(
