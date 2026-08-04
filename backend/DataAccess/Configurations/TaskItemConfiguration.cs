@@ -9,8 +9,11 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
     public void Configure(EntityTypeBuilder<TaskItem> builder)
     {
         builder.HasKey(t => t.Id);
-        
+
         builder.Property(t => t.Title).IsRequired().HasMaxLength(255);
+
+        // Composite index for optimized filtering, sorting, and pagination
+        builder.HasIndex(t => new { t.UserId, t.CategoryId, t.IsImportant, t.CreatedAt, t.Id });
 
         builder.HasOne(t => t.User)
               .WithMany(u => u.Tasks)
