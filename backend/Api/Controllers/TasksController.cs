@@ -20,7 +20,7 @@ public class TasksController : AuthenticatedControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResultDto<TaskDto>>> GetAll(
-        [FromQuery, Range(1, int.MaxValue)] int page = 1,
+        [FromQuery, Range(1, 21474837)] int page = 1,
         [FromQuery, Range(1, 100)] int pageSize = 20,
         [FromQuery] string? search = null,
         [FromQuery] bool? isCompleted = null,
