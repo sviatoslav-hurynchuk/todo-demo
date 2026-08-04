@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Interfaces;
@@ -9,7 +8,7 @@ namespace TodoApp.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TasksController : ControllerBase
+public class TasksController : AuthenticatedControllerBase
 {
     private readonly ITaskService _taskService;
 
@@ -27,7 +26,10 @@ public class TasksController : ControllerBase
         [FromQuery] bool? isImportant = null,
         [FromQuery] int? categoryId = null)
     {
-        var result = await _taskService.GetAllAsync(GetUserId(), page, pageSize, search, isCompleted, isImportant, categoryId);
+        var validatedPage = Math.Max(1, page);
+        var validatedPageSize = Math.Clamp(pageSize, 1, 100);
+
+        var result = await _taskService.GetAllAsync(GetUserId(), validatedPage, validatedPageSize, search, isCompleted, isImportant, categoryId);
         return Ok(result);
     }
 
@@ -100,7 +102,4 @@ public class TasksController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
-
-    private int GetUserId() =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

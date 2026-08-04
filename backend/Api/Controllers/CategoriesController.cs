@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Interfaces;
@@ -9,7 +8,7 @@ namespace TodoApp.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class CategoriesController : ControllerBase
+public class CategoriesController : AuthenticatedControllerBase
 {
     private readonly ICategoryService _categoryService;
 
@@ -73,7 +72,4 @@ public class CategoriesController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
-
-    private int GetUserId() =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
