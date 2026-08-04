@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Interfaces;
@@ -19,17 +20,14 @@ public class TasksController : AuthenticatedControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResultDto<TaskDto>>> GetAll(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20,
+        [FromQuery, Range(1, int.MaxValue)] int page = 1,
+        [FromQuery, Range(1, 100)] int pageSize = 20,
         [FromQuery] string? search = null,
         [FromQuery] bool? isCompleted = null,
         [FromQuery] bool? isImportant = null,
         [FromQuery] int? categoryId = null)
     {
-        var validatedPage = Math.Max(1, page);
-        var validatedPageSize = Math.Clamp(pageSize, 1, 100);
-
-        var result = await _taskService.GetAllAsync(GetUserId(), validatedPage, validatedPageSize, search, isCompleted, isImportant, categoryId);
+        var result = await _taskService.GetAllAsync(GetUserId(), page, pageSize, search, isCompleted, isImportant, categoryId);
         return Ok(result);
     }
 
