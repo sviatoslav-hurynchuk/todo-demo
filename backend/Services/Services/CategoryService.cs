@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.DataAccess.Data;
 using TodoApp.DataAccess.Entities;
@@ -10,6 +11,14 @@ public class CategoryService : ICategoryService
 {
     private readonly AppDbContext _context;
 
+    private static readonly Expression<Func<Category, CategoryDto>> CategoryProjection = c => new CategoryDto(
+        c.Id,
+        c.Name,
+        c.Color,
+        c.Icon,
+        c.Tasks.Count
+    );
+
     public CategoryService(AppDbContext context)
     {
         _context = context;
@@ -20,13 +29,7 @@ public class CategoryService : ICategoryService
         return await _context.Categories
             .AsNoTracking()
             .Where(c => c.UserId == userId)
-            .Select(c => new CategoryDto(
-                c.Id,
-                c.Name,
-                c.Color,
-                c.Icon,
-                c.Tasks.Count
-            ))
+            .Select(CategoryProjection)
             .ToListAsync();
     }
 
@@ -35,13 +38,7 @@ public class CategoryService : ICategoryService
         var category = await _context.Categories
             .AsNoTracking()
             .Where(c => c.Id == id && c.UserId == userId)
-            .Select(c => new CategoryDto(
-                c.Id,
-                c.Name,
-                c.Color,
-                c.Icon,
-                c.Tasks.Count
-            ))
+            .Select(CategoryProjection)
             .FirstOrDefaultAsync();
 
         if (category is null)
