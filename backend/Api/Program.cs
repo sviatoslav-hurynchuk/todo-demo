@@ -74,7 +74,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? new[] { "http://localhost:4200" };
+    ?? throw new InvalidOperationException("Cors:AllowedOrigins is not configured in appsettings.json.");
 
 builder.Services.AddCors(options =>
 {
