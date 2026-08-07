@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, shareReplay, finalize } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/auth.model';
 
@@ -10,6 +10,7 @@ import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/aut
 export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/auth`;
+  private refreshTokenObservable$: Observable<AuthResponse> | null = null;
 
   // Reactive state management via Signals
   private accessTokenSignal = signal<string | null>(null);
@@ -32,13 +33,23 @@ export class AuthService {
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, {}).pipe(
+    if (this.refreshTokenObservable$) {
+      return this.refreshTokenObservable$;
+    }
+
+    this.refreshTokenObservable$ = this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, {}).pipe(
       tap(response => this.setAuthState(response)),
+      shareReplay(1),
       catchError(err => {
         this.clearAuthState();
         return throwError(() => err);
+      }),
+      finalize(() => {
+        this.refreshTokenObservable$ = null;
       })
     );
+
+    return this.refreshTokenObservable$;
   }
 
   logout(): Observable<void> {
