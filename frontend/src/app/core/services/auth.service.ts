@@ -20,19 +20,19 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this.accessTokenSignal());
 
   register(dto: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, dto, { withCredentials: true }).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, dto).pipe(
       tap(response => this.setAuthState(response))
     );
   }
 
   login(dto: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, dto, { withCredentials: true }).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, dto).pipe(
       tap(response => this.setAuthState(response))
     );
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true }).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, {}).pipe(
       tap(response => this.setAuthState(response)),
       catchError(err => {
         this.clearAuthState();
@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/revoke-token`, {}, { withCredentials: true }).pipe(
+    return this.http.post<void>(`${this.apiUrl}/revoke-token`, {}).pipe(
       tap(() => this.clearAuthState()),
       catchError(() => {
         this.clearAuthState();
