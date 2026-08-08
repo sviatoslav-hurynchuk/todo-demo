@@ -6,7 +6,7 @@
     </div>
 
     @if (errorMessage()) {
-      <div class="error-alert" role="alert" aria-live="polite">
+      <div class="error-alert" role="alert">
         {{ errorMessage() }}
       </div>
     }
@@ -18,13 +18,20 @@
           id="username"
           type="text"
           formControlName="username"
-          placeholder="username"
+          required
+          aria-required="true"
           [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
           [attr.aria-invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched ? 'true' : null"
           [attr.aria-describedby]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched ? 'username-error' : null"
         />
         @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
-          <span id="username-error" class="field-error">Username must be 3 to 50 characters</span>
+          <span id="username-error" class="field-error">
+            @if (registerForm.get('username')?.hasError('required')) {
+              Username is required
+            } @else {
+              Username must be 3 to 50 characters
+            }
+          </span>
         }
       </div>
 
@@ -34,13 +41,21 @@
           id="email"
           type="email"
           formControlName="email"
-          placeholder="your@email.com"
+          placeholder="name@example.com"
+          required
+          aria-required="true"
           [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
           [attr.aria-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched ? 'true' : null"
           [attr.aria-describedby]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched ? 'email-error' : null"
         />
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          <span id="email-error" class="field-error">Please enter a valid email</span>
+          <span id="email-error" class="field-error">
+            @if (registerForm.get('email')?.hasError('required')) {
+              Email is required
+            } @else if (registerForm.get('email')?.hasError('email')) {
+              Please enter a valid email
+            }
+          </span>
         }
       </div>
 
@@ -51,12 +66,20 @@
           type="password"
           formControlName="password"
           placeholder="At least 6 characters"
+          required
+          aria-required="true"
           [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
           [attr.aria-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched ? 'true' : null"
           [attr.aria-describedby]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched ? 'password-error' : null"
         />
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <span id="password-error" class="field-error">Password must be at least 6 characters</span>
+          <span id="password-error" class="field-error">
+            @if (registerForm.get('password')?.hasError('required')) {
+              Password is required
+            } @else {
+              Password must be at least 6 characters
+            }
+          </span>
         }
       </div>
 
