@@ -31,16 +31,11 @@
       color: #1b1b1b;
       margin-bottom: 4px;
     }
-
-    p {
-      font-size: 14px;
-      color: #666666;
-    }
   }
 
   .error-alert {
     background-color: #fde8e8;
-    color: #e02424;
+    color: #991b1b;
     padding: 10px 14px;
     border-radius: 6px;
     font-size: 14px;
@@ -69,6 +64,11 @@
 
       &:focus {
         border-color: #2564cf;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #2564cf;
+        outline-offset: 2px;
       }
 
       &.invalid {
@@ -100,6 +100,11 @@
       background-color: #1d4ed8;
     }
 
+    &:focus-visible {
+      outline: 2px solid #1d4ed8;
+      outline-offset: 2px;
+    }
+
     &:disabled {
       opacity: 0.7;
       cursor: not-allowed;
@@ -119,6 +124,12 @@
 
       &:hover {
         text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #2564cf;
+        outline-offset: 2px;
+        border-radius: 2px;
       }
     }
   }
