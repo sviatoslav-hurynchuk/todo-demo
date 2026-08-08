@@ -5,7 +5,7 @@
     <aside class="sidebar-container" [class.open]="isSidebarOpen()">
       <app-sidebar
         (filterChange)="onFilterChange($event)"
-        (createCategoryClick)="onCreateCategoryClick()"
+        (createCategoryClick)="openCategoryModal()"
       ></app-sidebar>
     </aside>
 
@@ -19,8 +19,15 @@
             @case ('category') { Category Tasks }
           }
         </h2>
-        <p>TaskList & TaskForm coming in next step</p>
+        <p>TaskList coming in next step</p>
       </div>
     </main>
   </div>
+
+  @if (isCategoryModalOpen()) {
+    <app-category-form
+      (categoryCreated)="onCategoryCreated()"
+      (closeModal)="closeCategoryModal()"
+    ></app-category-form>
+  }
 </div>

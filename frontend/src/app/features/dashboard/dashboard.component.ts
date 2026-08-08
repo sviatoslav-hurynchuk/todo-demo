@@ -1,17 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { SidebarComponent, ActiveFilterType } from './sidebar/sidebar.component';
+import { CategoryFormComponent } from './category-form/category-form.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, SidebarComponent],
+  imports: [CommonModule, NavbarComponent, SidebarComponent, CategoryFormComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
+  @ViewChild(SidebarComponent) sidebarComponent!: SidebarComponent;
+
   isSidebarOpen = signal<boolean>(false);
+  isCategoryModalOpen = signal<boolean>(false);
   activeFilter = signal<ActiveFilterType>('all');
   selectedCategoryId = signal<number | null>(null);
 
@@ -22,11 +26,21 @@ export class DashboardComponent {
   onFilterChange(event: { filter: ActiveFilterType; categoryId?: number | null }): void {
     this.activeFilter.set(event.filter);
     this.selectedCategoryId.set(event.categoryId ?? null);
-    // Close mobile drawer on selection
     this.isSidebarOpen.set(false);
   }
 
-  onCreateCategoryClick(): void {
-    // Category creation modal will be implemented in next step
+  openCategoryModal(): void {
+    this.isCategoryModalOpen.set(true);
+  }
+
+  closeCategoryModal(): void {
+    this.isCategoryModalOpen.set(false);
+  }
+
+  onCategoryCreated(): void {
+    this.closeCategoryModal();
+    if (this.sidebarComponent) {
+      this.sidebarComponent.loadCategories();
+    }
   }
 }
