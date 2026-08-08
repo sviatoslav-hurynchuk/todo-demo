@@ -1,0 +1,70 @@
+<nav class="sidebar-nav" aria-label="Main Navigation">
+  <div class="section-group">
+    <span class="section-title">Filters</span>
+    <ul class="nav-list">
+      <li
+        class="nav-item"
+        [class.active]="activeFilter() === 'all'"
+        (click)="selectQuickFilter('all')"
+      >
+        <span class="material-icons item-icon">list_alt</span>
+        <span class="item-text">All Tasks</span>
+      </li>
+
+      <li
+        class="nav-item"
+        [class.active]="activeFilter() === 'important'"
+        (click)="selectQuickFilter('important')"
+      >
+        <span class="material-icons item-icon star-icon">star</span>
+        <span class="item-text">Important</span>
+      </li>
+
+      <li
+        class="nav-item"
+        [class.active]="activeFilter() === 'completed'"
+        (click)="selectQuickFilter('completed')"
+      >
+        <span class="material-icons item-icon check-icon">check_circle</span>
+        <span class="item-text">Completed</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="section-group">
+    <div class="section-header">
+      <span class="section-title">Categories</span>
+      <button
+        type="button"
+        class="btn-add-category"
+        aria-label="Create new category"
+        (click)="onCreateCategory()"
+      >
+        <span class="material-icons">add</span>
+      </button>
+    </div>
+
+    @if (isLoadingCategories()) {
+      <div class="sidebar-loading">Loading categories...</div>
+    } @else {
+      <ul class="nav-list">
+        @for (category of categories(); track category.id) {
+          <li
+            class="nav-item category-item"
+            [class.active]="activeFilter() === 'category' && selectedCategoryId() === category.id"
+            (click)="selectCategory(category)"
+          >
+            <span
+              class="category-color-badge"
+              [style.background-color]="category.color || '#3B82F6'"
+            ></span>
+            <span class="item-text">{{ category.name }}</span>
+            <span class="count-badge">{{ category.taskCount }}</span>
+          </li>
+        } @empty {
+          <li class="empty-categories">No categories yet</li>
+        }
+      </ul>
+    }
+  </div>
+</nav>
