@@ -43,6 +43,26 @@
       <div class="form-group">
         <label>Color</label>
         <div class="color-picker-grid" role="radiogroup" aria-label="Select category color">
+          <!-- Custom Color Picker Button as identical button tag -->
+          <button
+            type="button"
+            class="color-option custom-gradient-picker"
+            [class.selected]="!availableColors.includes(categoryForm.get('color')?.value ?? '')"
+            title="Pick custom color"
+            (click)="triggerColorPicker(pickerInput)"
+          >
+            @if (!availableColors.includes(categoryForm.get('color')?.value ?? '')) {
+              <span class="material-icons check-mark custom-check">check</span>
+            }
+            <input
+              #pickerInput
+              type="color"
+              formControlName="color"
+              class="native-color-input"
+              aria-label="Custom color picker"
+            />
+          </button>
+
           @for (color of availableColors; track color) {
             <button
               type="button"
