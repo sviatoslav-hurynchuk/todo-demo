@@ -1,0 +1,19 @@
+<div class="dashboard-layout">
+  <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
+
+  <div class="dashboard-body">
+    <aside class="sidebar-container" [class.open]="isSidebarOpen()">
+      <div class="sidebar-placeholder">
+        <h3>Categories</h3>
+        <p>Sidebar coming in next step</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-placeholder">
+        <h2>Tasks</h2>
+        <p>TaskList coming in next step</p>
+      </div>
+    </main>
+  </div>
+</div>
