@@ -41,6 +41,10 @@ export class CategoryFormComponent {
     this.categoryForm.patchValue({ color });
   }
 
+  triggerColorPicker(input: HTMLInputElement): void {
+    input.click();
+  }
+
   onSubmit(): void {
     if (this.isLoading()) return;
 
