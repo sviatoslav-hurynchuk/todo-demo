@@ -1,0 +1,124 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #333333;
+      padding: 6px;
+      border-radius: 6px;
+
+      &:focus-visible {
+        outline: 2px solid #2564cf;
+        outline-offset: 2px;
+      }
+
+      @media (max-width: 768px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .brand-icon {
+        font-size: 28px;
+        color: #2564cf;
+      }
+
+      .brand-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1b1b1b;
+      }
+    }
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .user-avatar {
+        font-size: 32px;
+        color: #6b7280;
+      }
+
+      .user-details {
+        display: flex;
+        flex-direction: column;
+
+        .username {
+          font-size: 14px;
+          font-weight: 700;
+          color: #1b1b1b;
+          line-height: 1.2;
+        }
+
+        .email {
+          font-size: 12px;
+          color: #6b7280;
+        }
+
+        @media (max-width: 480px) {
+          display: none;
+        }
+      }
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background-color: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+
+      &:hover {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border-color: #fca5a5;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #991b1b;
+        outline-offset: 2px;
+      }
+
+      @media (max-width: 480px) {
+        .logout-text {
+          display: none;
+        }
+      }
+    }
+  }
+}
