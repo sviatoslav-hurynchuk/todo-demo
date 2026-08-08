@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
+  private fb = inject(FormBuilder).nonNullable;
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -25,6 +25,8 @@ export class LoginComponent {
   });
 
   onSubmit(): void {
+    if (this.isLoading()) return;
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -33,10 +35,9 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login({
-      email: this.loginForm.value.email!,
-      password: this.loginForm.value.password!
-    }).subscribe({
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/dashboard']);

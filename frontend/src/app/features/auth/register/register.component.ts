@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
+  private fb = inject(FormBuilder).nonNullable;
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -26,6 +26,8 @@ export class RegisterComponent {
   });
 
   onSubmit(): void {
+    if (this.isLoading()) return;
+
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
@@ -34,11 +36,9 @@ export class RegisterComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.register({
-      username: this.registerForm.value.username!,
-      email: this.registerForm.value.email!,
-      password: this.registerForm.value.password!
-    }).subscribe({
+    const { username, email, password } = this.registerForm.getRawValue();
+
+    this.authService.register({ username, email, password }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/dashboard']);
