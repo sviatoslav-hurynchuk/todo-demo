@@ -1,0 +1,70 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="material-icons auth-icon">person_add</span>
+      <h2>Sign up</h2>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="error-alert">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="username"
+          [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+        />
+        @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+          <span class="field-error">Username must be 3 to 50 characters</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <span class="field-error">Please enter a valid email</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="At least 6 characters"
+          [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <span class="field-error">Password must be at least 6 characters</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <span>Signing up...</span>
+        } @else {
+          <span>Sign Up</span>
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+    </div>
+  </div>
+</div>
