@@ -84,6 +84,7 @@ export class CategoryFormComponent implements AfterViewInit {
   }
 
   onClose(): void {
+    if (this.isLoading()) return;
     this.closeModal.emit();
   }
 }

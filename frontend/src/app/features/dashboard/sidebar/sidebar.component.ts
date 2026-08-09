@@ -1,5 +1,6 @@
-import { Component, inject, signal, output, OnInit } from '@angular/core';
+import { Component, inject, signal, output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/category.model';
 
@@ -12,8 +13,9 @@ export type ActiveFilterType = 'all' | 'important' | 'completed' | 'category';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   private categoryService = inject(CategoryService);
+  private loadSub?: Subscription;
 
   categories = signal<Category[]>([]);
   isLoadingCategories = signal<boolean>(false);
@@ -28,11 +30,17 @@ export class SidebarComponent implements OnInit {
     this.loadCategories();
   }
 
+  ngOnDestroy(): void {
+    this.loadSub?.unsubscribe();
+  }
+
   loadCategories(): void {
+    this.loadSub?.unsubscribe();
+
     this.isLoadingCategories.set(true);
     this.hasCategoryError.set(false);
 
-    this.categoryService.getAll().subscribe({
+    this.loadSub = this.categoryService.getAll().subscribe({
       next: (data: Category[]) => {
         this.categories.set(data);
         this.isLoadingCategories.set(false);
