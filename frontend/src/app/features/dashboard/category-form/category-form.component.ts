@@ -1,4 +1,4 @@
-import { Component, inject, signal, output } from '@angular/core';
+import { Component, inject, signal, output, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
@@ -11,9 +11,11 @@ import { Category } from '../../../core/models/category.model';
   templateUrl: './category-form.component.html',
   styleUrls: ['./category-form.component.scss']
 })
-export class CategoryFormComponent {
+export class CategoryFormComponent implements AfterViewInit {
   private fb = inject(FormBuilder).nonNullable;
   private categoryService = inject(CategoryService);
+
+  @ViewChild('nameInput') nameInput!: ElementRef<HTMLInputElement>;
 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
@@ -33,9 +35,20 @@ export class CategoryFormComponent {
   ];
 
   categoryForm = this.fb.group({
-    name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(50)]],
+    name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
     color: ['#3B82F6', [Validators.required]]
   });
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.nameInput?.nativeElement?.focus();
+    }, 0);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.onClose();
+  }
 
   selectColor(color: string): void {
     this.categoryForm.patchValue({ color });
