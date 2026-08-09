@@ -59,14 +59,16 @@
             @if (!availableColors.includes(categoryForm.get('color')?.value ?? '')) {
               <span class="material-icons check-mark custom-check">check</span>
             }
-            <input
-              #pickerInput
-              type="color"
-              formControlName="color"
-              class="native-color-input"
-              aria-label="Native color picker input"
-            />
           </button>
+
+          <!-- Hidden Native Color Input outside button -->
+          <input
+            #pickerInput
+            type="color"
+            formControlName="color"
+            class="native-color-input"
+            aria-label="Native color picker input"
+          />
 
           @for (color of availableColors; track color) {
             <button

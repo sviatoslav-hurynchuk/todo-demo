@@ -14,6 +14,7 @@ import { Category } from '../../../core/models/category.model';
 export class CategoryFormComponent implements AfterViewInit {
   private fb = inject(FormBuilder).nonNullable;
   private categoryService = inject(CategoryService);
+  private elementRef = inject(ElementRef);
 
   @ViewChild('nameInput') nameInput!: ElementRef<HTMLInputElement>;
 
@@ -48,6 +49,33 @@ export class CategoryFormComponent implements AfterViewInit {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.onClose();
+  }
+
+  @HostListener('keydown.tab', ['$event'])
+  onTabKey(event: Event): void {
+    const keyEvent = event as KeyboardEvent;
+    const container = this.elementRef.nativeElement as HTMLElement;
+    const focusableNodes = container.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const focusables = Array.from(focusableNodes) as HTMLElement[];
+
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (keyEvent.shiftKey) {
+      if (document.activeElement === first) {
+        last.focus();
+        keyEvent.preventDefault();
+      }
+    } else {
+      if (document.activeElement === last) {
+        first.focus();
+        keyEvent.preventDefault();
+      }
+    }
   }
 
   selectColor(color: string): void {
