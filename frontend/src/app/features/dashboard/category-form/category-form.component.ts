@@ -1,8 +1,15 @@
 import { Component, inject, signal, output, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/category.model';
+
+export function noWhitespaceValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    return !isWhitespace ? null : { whitespace: true };
+  };
+}
 
 @Component({
   selector: 'app-category-form',
@@ -36,7 +43,7 @@ export class CategoryFormComponent implements AfterViewInit {
   ];
 
   categoryForm = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+    name: ['', [Validators.required, noWhitespaceValidator(), Validators.maxLength(50)]],
     color: ['#3B82F6', [Validators.required]]
   });
 
@@ -99,7 +106,7 @@ export class CategoryFormComponent implements AfterViewInit {
 
     const { name, color } = this.categoryForm.getRawValue();
 
-    this.categoryService.create({ name, color }).subscribe({
+    this.categoryService.create({ name: name.trim(), color }).subscribe({
       next: (newCategory: Category) => {
         this.isLoading.set(false);
         this.categoryCreated.emit(newCategory);

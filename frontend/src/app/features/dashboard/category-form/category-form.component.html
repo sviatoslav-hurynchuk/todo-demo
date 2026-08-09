@@ -39,7 +39,13 @@
           [attr.aria-describedby]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched ? 'name-error' : null"
         />
         @if (categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched) {
-          <span id="name-error" class="field-error">Category name is required (max 50 characters)</span>
+          <span id="name-error" class="field-error">
+            @if (categoryForm.get('name')?.hasError('required') || categoryForm.get('name')?.hasError('whitespace')) {
+              Category name is required
+            } @else {
+              Category name must not exceed 50 characters
+            }
+          </span>
         }
       </div>
 
