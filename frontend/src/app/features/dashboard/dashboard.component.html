@@ -1,0 +1,33 @@
+<div class="dashboard-layout">
+  <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
+
+  <div class="dashboard-body">
+    <aside class="sidebar-container" [class.open]="isSidebarOpen()">
+      <app-sidebar
+        (filterChange)="onFilterChange($event)"
+        (createCategoryClick)="openCategoryModal()"
+      ></app-sidebar>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-placeholder">
+        <h2>
+          @switch (activeFilter()) {
+            @case ('all') { All Tasks }
+            @case ('important') { Important Tasks }
+            @case ('completed') { Completed Tasks }
+            @case ('category') { Category Tasks }
+          }
+        </h2>
+        <p>TaskList coming in next step</p>
+      </div>
+    </main>
+  </div>
+
+  @if (isCategoryModalOpen()) {
+    <app-category-form
+      (categoryCreated)="onCategoryCreated()"
+      (closeModal)="closeCategoryModal()"
+    ></app-category-form>
+  }
+</div>

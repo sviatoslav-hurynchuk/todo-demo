@@ -1,0 +1,111 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div
+    class="modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h3 id="modal-title">New Category</h3>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close modal"
+        (click)="onClose()"
+      >
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="error-alert" role="alert">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="category-name">Category Name</label>
+        <input
+          #nameInput
+          id="category-name"
+          type="text"
+          formControlName="name"
+          required
+          aria-required="true"
+          [class.invalid]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
+          [attr.aria-invalid]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched ? 'true' : null"
+          [attr.aria-describedby]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched ? 'name-error' : null"
+        />
+        @if (categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched) {
+          <span id="name-error" class="field-error">
+            @if (categoryForm.get('name')?.hasError('required') || categoryForm.get('name')?.hasError('whitespace')) {
+              Category name is required
+            } @else {
+              Category name must not exceed 50 characters
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label id="color-label">Color</label>
+        <div class="color-picker-grid" role="group" aria-labelledby="color-label">
+          <!-- Custom Color Picker Button -->
+          <button
+            type="button"
+            class="color-option custom-gradient-picker"
+            [class.selected]="!availableColors.includes(categoryForm.get('color')?.value ?? '')"
+            [attr.aria-pressed]="!availableColors.includes(categoryForm.get('color')?.value ?? '')"
+            title="Pick custom color"
+            aria-label="Custom color picker"
+            (click)="triggerColorPicker(pickerInput)"
+          >
+            @if (!availableColors.includes(categoryForm.get('color')?.value ?? '')) {
+              <span class="material-icons check-mark custom-check">check</span>
+            }
+          </button>
+
+          <!-- Hidden Native Color Input outside button -->
+          <input
+            #pickerInput
+            type="color"
+            formControlName="color"
+            class="native-color-input"
+            aria-label="Native color picker input"
+          />
+
+          @for (color of availableColors; track color) {
+            <button
+              type="button"
+              class="color-option"
+              [style.background-color]="color"
+              [class.selected]="categoryForm.get('color')?.value === color"
+              [attr.aria-pressed]="categoryForm.get('color')?.value === color"
+              [attr.aria-label]="'Color option ' + color"
+              (click)="selectColor(color)"
+            >
+              @if (categoryForm.get('color')?.value === color) {
+                <span class="material-icons check-mark">check</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="onClose()">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>Saving...</span>
+          } @else {
+            <span>Save</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

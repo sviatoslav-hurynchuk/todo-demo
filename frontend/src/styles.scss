@@ -13,6 +13,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Global Form Placeholders Rule: Disappear on focus for fields with clear labels */
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: transparent;
+}
+
 /* Material Icons Helper */
 .material-icons {
   font-family: 'Material Icons';

@@ -1,0 +1,91 @@
+<nav class="sidebar-nav" aria-label="Main Navigation">
+  <div class="section-group">
+    <span class="section-title">Filters</span>
+    <ul class="nav-list">
+      <li>
+        <button
+          type="button"
+          class="nav-item"
+          [class.active]="activeFilter() === 'all'"
+          [attr.aria-pressed]="activeFilter() === 'all'"
+          (click)="selectQuickFilter('all')"
+        >
+          <span class="material-icons item-icon" aria-hidden="true">list_alt</span>
+          <span class="item-text">All Tasks</span>
+        </button>
+      </li>
+
+      <li>
+        <button
+          type="button"
+          class="nav-item"
+          [class.active]="activeFilter() === 'important'"
+          [attr.aria-pressed]="activeFilter() === 'important'"
+          (click)="selectQuickFilter('important')"
+        >
+          <span class="material-icons item-icon star-icon" aria-hidden="true">star</span>
+          <span class="item-text">Important</span>
+        </button>
+      </li>
+
+      <li>
+        <button
+          type="button"
+          class="nav-item"
+          [class.active]="activeFilter() === 'completed'"
+          [attr.aria-pressed]="activeFilter() === 'completed'"
+          (click)="selectQuickFilter('completed')"
+        >
+          <span class="material-icons item-icon check-icon" aria-hidden="true">check_circle</span>
+          <span class="item-text">Completed</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="section-group">
+    <div class="section-header">
+      <span class="section-title">Categories</span>
+      <button
+        type="button"
+        class="btn-add-category"
+        aria-label="Create new category"
+        (click)="onCreateCategory()"
+      >
+        <span class="material-icons" aria-hidden="true">add</span>
+      </button>
+    </div>
+
+    @if (isLoadingCategories()) {
+      <div class="sidebar-loading">Loading categories...</div>
+    } @else if (hasCategoryError()) {
+      <div class="sidebar-error" role="alert">
+        <span>Failed to load categories</span>
+        <button type="button" class="btn-retry" (click)="loadCategories()">Retry</button>
+      </div>
+    } @else {
+      <ul class="nav-list">
+        @for (category of categories(); track category.id) {
+          <li>
+            <button
+              type="button"
+              class="nav-item category-item"
+              [class.active]="activeFilter() === 'category' && selectedCategoryId() === category.id"
+              [attr.aria-pressed]="activeFilter() === 'category' && selectedCategoryId() === category.id"
+              (click)="selectCategory(category)"
+            >
+              <span
+                class="category-color-badge"
+                [style.background-color]="category.color || '#3B82F6'"
+              ></span>
+              <span class="item-text">{{ category.name }}</span>
+              <span class="count-badge">{{ category.taskCount }}</span>
+            </button>
+          </li>
+        } @empty {
+          <li class="empty-categories">No categories yet</li>
+        }
+      </ul>
+    }
+  </div>
+</nav>
