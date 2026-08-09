@@ -17,6 +17,7 @@ export class SidebarComponent implements OnInit {
 
   categories = signal<Category[]>([]);
   isLoadingCategories = signal<boolean>(false);
+  hasCategoryError = signal<boolean>(false);
   activeFilter = signal<ActiveFilterType>('all');
   selectedCategoryId = signal<number | null>(null);
 
@@ -29,6 +30,8 @@ export class SidebarComponent implements OnInit {
 
   loadCategories(): void {
     this.isLoadingCategories.set(true);
+    this.hasCategoryError.set(false);
+
     this.categoryService.getAll().subscribe({
       next: (data: Category[]) => {
         this.categories.set(data);
@@ -36,6 +39,7 @@ export class SidebarComponent implements OnInit {
       },
       error: () => {
         this.isLoadingCategories.set(false);
+        this.hasCategoryError.set(true);
       }
     });
   }

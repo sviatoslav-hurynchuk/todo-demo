@@ -52,18 +52,26 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+
+  li {
+    width: 100%;
+  }
 }
 
 .nav-item {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
   border-radius: 6px;
+  border: none;
+  background: none;
   cursor: pointer;
   color: #374151;
   font-size: 14px;
   font-weight: 600;
+  text-align: left;
   transition: background-color 0.15s, color 0.15s;
   user-select: none;
 
@@ -128,4 +136,29 @@
   font-size: 13px;
   color: #9ca3af;
   padding: 8px 12px;
+}
+
+.sidebar-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #991b1b;
+
+  .btn-retry {
+    background: none;
+    border: none;
+    color: #2564cf;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+
+    &:focus-visible {
+      outline: 2px solid #2564cf;
+      outline-offset: 2px;
+    }
+  }
 }
