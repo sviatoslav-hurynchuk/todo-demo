@@ -33,7 +33,7 @@ export class CategoryFormComponent {
   ];
 
   categoryForm = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+    name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(50)]],
     color: ['#3B82F6', [Validators.required]]
   });
 
