@@ -34,70 +34,35 @@ public class TasksController : AuthenticatedControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskDto>> GetById(int id)
     {
-        try
-        {
-            var task = await _taskService.GetByIdAsync(id, GetUserId());
-            return Ok(task);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var task = await _taskService.GetByIdAsync(id, GetUserId());
+        return Ok(task);
     }
 
     [HttpPost]
     public async Task<ActionResult<TaskDto>> Create([FromBody] CreateTaskDto dto)
     {
-        try
-        {
-            var task = await _taskService.CreateAsync(dto, GetUserId());
-            return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var task = await _taskService.CreateAsync(dto, GetUserId());
+        return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
     }
 
     [HttpPut("{id:int}")]
     public async Task<ActionResult<TaskDto>> Update(int id, [FromBody] UpdateTaskDto dto)
     {
-        try
-        {
-            var task = await _taskService.UpdateAsync(id, dto, GetUserId());
-            return Ok(task);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var task = await _taskService.UpdateAsync(id, dto, GetUserId());
+        return Ok(task);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await _taskService.DeleteAsync(id, GetUserId());
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _taskService.DeleteAsync(id, GetUserId());
+        return NoContent();
     }
 
     [HttpPatch("{id:int}/toggle")]
     public async Task<ActionResult<TaskDto>> ToggleComplete(int id)
     {
-        try
-        {
-            var task = await _taskService.ToggleCompleteAsync(id, GetUserId());
-            return Ok(task);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var task = await _taskService.ToggleCompleteAsync(id, GetUserId());
+        return Ok(task);
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TodoApp.Api.Middleware;
 using TodoApp.DataAccess.Data;
 using TodoApp.Interfaces;
 using TodoApp.Services.Helpers;
@@ -14,6 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -107,6 +111,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
