@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using TodoApp.Interfaces;
 using TodoApp.Interfaces.DTOs;
 
@@ -7,6 +8,7 @@ namespace TodoApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -104,10 +106,6 @@ public class AuthController : ControllerBase
 
     private string GetIpAddress()
     {
-        if (Request.Headers.ContainsKey("X-Forwarded-For"))
-        {
-            return Request.Headers["X-Forwarded-For"]!;
-        }
         return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
     }
 }

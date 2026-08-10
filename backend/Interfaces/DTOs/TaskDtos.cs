@@ -15,7 +15,7 @@ public record TaskDto(
 
 public record CreateTaskDto(
     [Required, MinLength(1), MaxLength(255)] string Title,
-    string? Description,
+    [MaxLength(2000)] string? Description,
     DateTime? DueDate,
     int? CategoryId,
     bool IsImportant = false
@@ -23,7 +23,7 @@ public record CreateTaskDto(
 
 public record UpdateTaskDto(
     [Required, MinLength(1), MaxLength(255)] string Title,
-    string? Description,
+    [MaxLength(2000)] string? Description,
     bool IsCompleted,
     bool IsImportant,
     DateTime? DueDate,
