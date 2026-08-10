@@ -9,7 +9,7 @@ namespace TodoApp.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [EnableRateLimiting("auth")]
-public class AuthController : ControllerBase
+public class AuthController : AuthenticatedControllerBase
 {
     private readonly IAuthService _authService;
 
@@ -81,7 +81,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            await _authService.RevokeTokenAsync(token, GetIpAddress());
+            await _authService.RevokeTokenAsync(token, GetIpAddress(), GetUserId());
             Response.Cookies.Delete("refreshToken");
             return Ok(new { message = "Token revoked successfully." });
         }

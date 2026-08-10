@@ -125,22 +125,22 @@ public class AuthService : IAuthService
         return (response, newRefreshToken.Token);
     }
 
-    public async Task RevokeTokenAsync(string refreshToken, string ipAddress)
+    public async Task RevokeTokenAsync(string refreshToken, string ipAddress, int userId)
     {
         var user = await _context.Users
             .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+            .FirstOrDefaultAsync(u => u.Id == userId && u.RefreshTokens.Any(t => t.Token == refreshToken));
 
         if (user == null)
         {
-            throw new InvalidOperationException("Invalid token.");
+            throw new InvalidOperationException("Invalid token or token does not belong to the user.");
         }
 
         var tokenEntity = user.RefreshTokens.Single(t => t.Token == refreshToken);
 
         if (!tokenEntity.IsActive)
         {
-            throw new InvalidOperationException("Invalid token.");
+            throw new InvalidOperationException("Token is already inactive or revoked.");
         }
 
         tokenEntity.RevokedAt = DateTime.UtcNow;
