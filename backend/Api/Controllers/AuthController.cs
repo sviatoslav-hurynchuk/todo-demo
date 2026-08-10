@@ -21,17 +21,31 @@ public class AuthController : AuthenticatedControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
     {
-        var result = await _authService.RegisterAsync(dto, GetIpAddress());
-        SetRefreshTokenCookie(result.RefreshToken);
-        return Ok(result.Response);
+        try
+        {
+            var result = await _authService.RegisterAsync(dto, GetIpAddress());
+            SetRefreshTokenCookie(result.RefreshToken);
+            return Ok(result.Response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
     {
-        var result = await _authService.LoginAsync(dto, GetIpAddress());
-        SetRefreshTokenCookie(result.RefreshToken);
-        return Ok(result.Response);
+        try
+        {
+            var result = await _authService.LoginAsync(dto, GetIpAddress());
+            SetRefreshTokenCookie(result.RefreshToken);
+            return Ok(result.Response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("refresh-token")]
@@ -43,9 +57,16 @@ public class AuthController : AuthenticatedControllerBase
             return BadRequest(new { message = "Refresh token is required." });
         }
 
-        var result = await _authService.RefreshTokenAsync(refreshToken, GetIpAddress());
-        SetRefreshTokenCookie(result.RefreshToken);
-        return Ok(result.Response);
+        try
+        {
+            var result = await _authService.RefreshTokenAsync(refreshToken, GetIpAddress());
+            SetRefreshTokenCookie(result.RefreshToken);
+            return Ok(result.Response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize]
@@ -58,9 +79,16 @@ public class AuthController : AuthenticatedControllerBase
             return BadRequest(new { message = "Token is required." });
         }
 
-        await _authService.RevokeTokenAsync(token, GetIpAddress(), GetUserId());
-        Response.Cookies.Delete("refreshToken");
-        return Ok(new { message = "Token revoked successfully." });
+        try
+        {
+            await _authService.RevokeTokenAsync(token, GetIpAddress(), GetUserId());
+            Response.Cookies.Delete("refreshToken");
+            return Ok(new { message = "Token revoked successfully." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     private void SetRefreshTokenCookie(string refreshToken)
