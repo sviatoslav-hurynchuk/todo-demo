@@ -63,7 +63,6 @@ public class AuthService : IAuthService
     public async Task<(AuthResponseDto Response, string RefreshToken)> LoginAsync(LoginDto dto, string ipAddress)
     {
         var user = await _context.Users
-            .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -74,13 +73,14 @@ public class AuthService : IAuthService
         var refreshTokenString = _jwtTokenGenerator.GenerateRefreshToken();
         var refreshToken = new RefreshToken
         {
+            UserId = user.Id,
             Token = refreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
             CreatedAt = DateTime.UtcNow,
             CreatedByIp = ipAddress
         };
 
-        user.RefreshTokens.Add(refreshToken);
+        _context.RefreshTokens.Add(refreshToken);
         await _context.SaveChangesAsync();
 
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.Username);
@@ -92,7 +92,7 @@ public class AuthService : IAuthService
     public async Task<(AuthResponseDto Response, string RefreshToken)> RefreshTokenAsync(string refreshToken, string ipAddress)
     {
         var user = await _context.Users
-            .Include(u => u.RefreshTokens)
+            .Include(u => u.RefreshTokens.Where(t => t.Token == refreshToken || t.IsActive))
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
 
         if (user == null)
@@ -127,16 +127,13 @@ public class AuthService : IAuthService
 
     public async Task RevokeTokenAsync(string refreshToken, string ipAddress, int userId)
     {
-        var user = await _context.Users
-            .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Id == userId && u.RefreshTokens.Any(t => t.Token == refreshToken));
+        var tokenEntity = await _context.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == refreshToken && t.UserId == userId);
 
-        if (user == null)
+        if (tokenEntity == null)
         {
             throw new InvalidOperationException("Invalid token or token does not belong to the user.");
         }
-
-        var tokenEntity = user.RefreshTokens.Single(t => t.Token == refreshToken);
 
         if (!tokenEntity.IsActive)
         {

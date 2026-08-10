@@ -109,6 +109,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddHostedService<TokenCleanupService>();
 
 var app = builder.Build();
 
