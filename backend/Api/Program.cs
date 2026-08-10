@@ -28,6 +28,14 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 0;
     });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            message = "Too many authentication attempts. Try again later."
+        }, token);
+    };
 });
 
 builder.Services.AddSwaggerGen(c =>
