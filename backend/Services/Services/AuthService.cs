@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoApp.DataAccess.Data;
 using TodoApp.DataAccess.Entities;
 using TodoApp.Interfaces;
+using TodoApp.Interfaces.Common;
 using TodoApp.Interfaces.DTOs;
 
 namespace TodoApp.Services.Services;
@@ -17,26 +18,29 @@ public class AuthService : IAuthService
         _jwtTokenGenerator = jwtTokenGenerator;
     }
 
-    public async Task<(AuthResponseDto Response, string RefreshToken)> RegisterAsync(RegisterDto dto, string ipAddress)
+    public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> RegisterAsync(RegisterDto dto, string ipAddress)
     {
-        var emailExists = await _context.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var normalizedEmail = dto.Email.Trim().ToLower();
+        var normalizedUsername = dto.Username.Trim();
+
+        var emailExists = await _context.Users.AnyAsync(u => u.Email == normalizedEmail);
         if (emailExists)
         {
-            throw new InvalidOperationException("User with this email already exists.");
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("User with this email already exists.");
         }
 
-        var usernameExists = await _context.Users.AnyAsync(u => u.Username.ToLower() == dto.Username.ToLower());
+        var usernameExists = await _context.Users.AnyAsync(u => u.Username.ToLower() == normalizedUsername.ToLower());
         if (usernameExists)
         {
-            throw new InvalidOperationException("User with this username already exists.");
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("User with this username already exists.");
         }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
         var user = new User
         {
-            Username = dto.Username.Trim(),
-            Email = dto.Email.Trim().ToLower(),
+            Username = normalizedUsername,
+            Email = normalizedEmail,
             PasswordHash = passwordHash,
             CreatedAt = DateTime.UtcNow
         };
@@ -57,47 +61,50 @@ public class AuthService : IAuthService
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.Username);
         var response = new AuthResponseDto(accessToken, user.Username, user.Email);
 
-        return (response, refreshToken.Token);
+        return Result<(AuthResponseDto Response, string RefreshToken)>.Success((response, refreshToken.Token));
     }
 
-    public async Task<(AuthResponseDto Response, string RefreshToken)> LoginAsync(LoginDto dto, string ipAddress)
+    public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> LoginAsync(LoginDto dto, string ipAddress)
     {
+        var normalizedEmail = dto.Email.Trim().ToLower();
         var user = await _context.Users
-            .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
-            throw new InvalidOperationException("Invalid email or password.");
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("Invalid email or password.");
         }
 
         var refreshTokenString = _jwtTokenGenerator.GenerateRefreshToken();
         var refreshToken = new RefreshToken
         {
+            UserId = user.Id,
             Token = refreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
             CreatedAt = DateTime.UtcNow,
             CreatedByIp = ipAddress
         };
 
-        user.RefreshTokens.Add(refreshToken);
+        _context.RefreshTokens.Add(refreshToken);
         await _context.SaveChangesAsync();
 
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.Username);
         var response = new AuthResponseDto(accessToken, user.Username, user.Email);
 
-        return (response, refreshToken.Token);
+        return Result<(AuthResponseDto Response, string RefreshToken)>.Success((response, refreshToken.Token));
     }
 
-    public async Task<(AuthResponseDto Response, string RefreshToken)> RefreshTokenAsync(string refreshToken, string ipAddress)
+    public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> RefreshTokenAsync(string refreshToken, string ipAddress)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         var user = await _context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
 
         if (user == null)
         {
-            throw new InvalidOperationException("Invalid token.");
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("Invalid token.");
         }
 
         var tokenEntity = user.RefreshTokens.Single(t => t.Token == refreshToken);
@@ -106,47 +113,47 @@ public class AuthService : IAuthService
         {
             RevokeDescendantRefreshTokens(tokenEntity, user, ipAddress, $"Attempted reuse of revoked token: {refreshToken}");
             await _context.SaveChangesAsync();
-            throw new InvalidOperationException("Invalid token.");
+            await transaction.CommitAsync();
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("Invalid token.");
         }
 
         if (!tokenEntity.IsActive)
         {
-            throw new InvalidOperationException("Invalid or expired token.");
+            return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("Invalid or expired token.");
         }
 
         var newRefreshToken = RotateRefreshToken(tokenEntity, ipAddress);
         user.RefreshTokens.Add(newRefreshToken);
 
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.Username);
         var response = new AuthResponseDto(accessToken, user.Username, user.Email);
 
-        return (response, newRefreshToken.Token);
+        return Result<(AuthResponseDto Response, string RefreshToken)>.Success((response, newRefreshToken.Token));
     }
 
-    public async Task RevokeTokenAsync(string refreshToken, string ipAddress)
+    public async Task<Result> RevokeTokenAsync(string refreshToken, string ipAddress, int userId)
     {
-        var user = await _context.Users
-            .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+        var tokenEntity = await _context.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == refreshToken && t.UserId == userId);
 
-        if (user == null)
+        if (tokenEntity == null)
         {
-            throw new InvalidOperationException("Invalid token.");
+            return Result.Failure("Invalid token or token does not belong to the user.");
         }
-
-        var tokenEntity = user.RefreshTokens.Single(t => t.Token == refreshToken);
 
         if (!tokenEntity.IsActive)
         {
-            throw new InvalidOperationException("Invalid token.");
+            return Result.Failure("Token is already inactive or revoked.");
         }
 
         tokenEntity.RevokedAt = DateTime.UtcNow;
         tokenEntity.RevokedByIp = ipAddress;
 
         await _context.SaveChangesAsync();
+        return Result.Success();
     }
 
     private RefreshToken RotateRefreshToken(RefreshToken refreshToken, string ipAddress)

@@ -16,17 +16,20 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   }
 
   const token = authService.accessToken();
-  const isAuthEndpoint = req.url.startsWith(`${environment.apiUrl}/auth`);
+  const isPublicAuthEndpoint =
+    req.url.startsWith(`${environment.apiUrl}/auth/login`) ||
+    req.url.startsWith(`${environment.apiUrl}/auth/register`) ||
+    req.url.startsWith(`${environment.apiUrl}/auth/refresh-token`);
 
   let clonedReq = req.clone({
     withCredentials: true,
-    setHeaders: token && !isAuthEndpoint ? { Authorization: `Bearer ${token}` } : {}
+    setHeaders: token && !isPublicAuthEndpoint ? { Authorization: `Bearer ${token}` } : {}
   });
 
   return next(clonedReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Coalesced automatic token refresh on 401 Unauthorized for API requests
-      if (error.status === 401 && !isAuthEndpoint) {
+      if (error.status === 401 && !isPublicAuthEndpoint) {
         return authService.refreshToken().pipe(
           switchMap(authResponse => {
             const newReq = req.clone({

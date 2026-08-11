@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError, shareReplay, finalize } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, tap, catchError, throwError, shareReplay, finalize, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/auth.model';
 
@@ -9,6 +10,7 @@ import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/aut
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
   private apiUrl = `${environment.apiUrl}/auth`;
   private refreshTokenObservable$: Observable<AuthResponse> | null = null;
 
@@ -52,12 +54,16 @@ export class AuthService {
     return this.refreshTokenObservable$;
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/revoke-token`, {}).pipe(
-      tap(() => this.clearAuthState()),
+  logout(): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/revoke-token`, {}).pipe(
+      tap(() => {
+        this.clearAuthState();
+        this.router.navigate(['/login']);
+      }),
       catchError(() => {
         this.clearAuthState();
-        return [];
+        this.router.navigate(['/login']);
+        return of(undefined);
       })
     );
   }

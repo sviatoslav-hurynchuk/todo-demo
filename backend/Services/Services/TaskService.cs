@@ -144,19 +144,20 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> ToggleCompleteAsync(int id, int userId)
     {
-        var task = await _context.Tasks
-            .Include(t => t.Category)
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        if (task is null)
+        var updatedRows = await _context.Tasks
+            .Where(t => t.Id == id && t.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.IsCompleted, t => !t.IsCompleted));
+
+        if (updatedRows == 0)
         {
             throw new KeyNotFoundException($"Task with id {id} not found.");
         }
 
-        task.IsCompleted = !task.IsCompleted;
-        await _context.SaveChangesAsync();
-
-        return MapToDto(task);
+        var result = await GetByIdAsync(id, userId);
+        await transaction.CommitAsync();
+        return result;
     }
 
     private async Task<Category?> ValidateAndGetCategoryAsync(int? categoryId, int userId)

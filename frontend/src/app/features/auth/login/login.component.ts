@@ -44,7 +44,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error?.message || 'Login failed. Please check your credentials.');
+        this.errorMessage.set(err.error?.message || 'Wrong email or password.');
       }
     });
   }

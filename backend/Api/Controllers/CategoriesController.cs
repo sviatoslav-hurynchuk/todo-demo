@@ -27,15 +27,8 @@ public class CategoriesController : AuthenticatedControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoryDto>> GetById(int id)
     {
-        try
-        {
-            var category = await _categoryService.GetByIdAsync(id, GetUserId());
-            return Ok(category);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var category = await _categoryService.GetByIdAsync(id, GetUserId());
+        return Ok(category);
     }
 
     [HttpPost]
@@ -48,28 +41,14 @@ public class CategoriesController : AuthenticatedControllerBase
     [HttpPut("{id:int}")]
     public async Task<ActionResult<CategoryDto>> Update(int id, [FromBody] UpdateCategoryDto dto)
     {
-        try
-        {
-            var category = await _categoryService.UpdateAsync(id, dto, GetUserId());
-            return Ok(category);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var category = await _categoryService.UpdateAsync(id, dto, GetUserId());
+        return Ok(category);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await _categoryService.DeleteAsync(id, GetUserId());
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        await _categoryService.DeleteAsync(id, GetUserId());
+        return NoContent();
     }
 }
