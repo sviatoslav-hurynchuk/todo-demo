@@ -186,6 +186,7 @@ public class TaskService : ITaskService
         task.IsImportant,
         task.DueDate,
         task.CategoryId,
-        task.Category?.Name
+        task.Category?.Name,
+        task.Category?.Color
     );
 }

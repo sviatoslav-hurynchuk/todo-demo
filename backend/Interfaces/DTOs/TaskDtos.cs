@@ -10,7 +10,8 @@ public record TaskDto(
     bool IsImportant,
     DateTime? DueDate,
     int? CategoryId,
-    string? CategoryName
+    string? CategoryName,
+    string? CategoryColor = null
 );
 
 public record CreateTaskDto(

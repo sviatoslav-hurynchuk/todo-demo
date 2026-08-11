@@ -10,17 +10,11 @@
     </aside>
 
     <main class="main-content">
-      <div class="content-placeholder">
-        <h2>
-          @switch (activeFilter()) {
-            @case ('all') { All Tasks }
-            @case ('important') { Important Tasks }
-            @case ('completed') { Completed Tasks }
-            @case ('category') { Category Tasks }
-          }
-        </h2>
-        <p>TaskList coming in next step</p>
-      </div>
+      <app-task-list
+        [activeFilter]="activeFilter()"
+        [selectedCategoryId]="selectedCategoryId()"
+        (createCategoryClick)="openCategoryModal()"
+      ></app-task-list>
     </main>
   </div>
 

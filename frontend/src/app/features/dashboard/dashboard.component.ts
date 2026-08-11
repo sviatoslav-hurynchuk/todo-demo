@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { SidebarComponent, ActiveFilterType } from './sidebar/sidebar.component';
 import { CategoryFormComponent } from './category-form/category-form.component';
+import { TaskListComponent } from '../tasks/task-list/task-list.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, SidebarComponent, CategoryFormComponent],
+  imports: [CommonModule, NavbarComponent, SidebarComponent, CategoryFormComponent, TaskListComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
   @ViewChild(SidebarComponent) sidebarComponent!: SidebarComponent;
+  @ViewChild(TaskListComponent) taskListComponent!: TaskListComponent;
 
   isSidebarOpen = signal<boolean>(false);
   isCategoryModalOpen = signal<boolean>(false);
@@ -41,6 +43,9 @@ export class DashboardComponent {
     this.closeCategoryModal();
     if (this.sidebarComponent) {
       this.sidebarComponent.loadCategories();
+    }
+    if (this.taskListComponent) {
+      this.taskListComponent.loadCategories();
     }
   }
 }
