@@ -20,13 +20,16 @@ public class AuthService : IAuthService
 
     public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> RegisterAsync(RegisterDto dto, string ipAddress)
     {
-        var emailExists = await _context.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var normalizedEmail = dto.Email.Trim().ToLower();
+        var normalizedUsername = dto.Username.Trim();
+
+        var emailExists = await _context.Users.AnyAsync(u => u.Email == normalizedEmail);
         if (emailExists)
         {
             return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("User with this email already exists.");
         }
 
-        var usernameExists = await _context.Users.AnyAsync(u => u.Username.ToLower() == dto.Username.ToLower());
+        var usernameExists = await _context.Users.AnyAsync(u => u.Username.ToLower() == normalizedUsername.ToLower());
         if (usernameExists)
         {
             return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("User with this username already exists.");
@@ -36,8 +39,8 @@ public class AuthService : IAuthService
 
         var user = new User
         {
-            Username = dto.Username.Trim(),
-            Email = dto.Email.Trim().ToLower(),
+            Username = normalizedUsername,
+            Email = normalizedEmail,
             PasswordHash = passwordHash,
             CreatedAt = DateTime.UtcNow
         };
@@ -63,8 +66,9 @@ public class AuthService : IAuthService
 
     public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> LoginAsync(LoginDto dto, string ipAddress)
     {
+        var normalizedEmail = dto.Email.Trim().ToLower();
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
@@ -92,6 +96,8 @@ public class AuthService : IAuthService
 
     public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> RefreshTokenAsync(string refreshToken, string ipAddress)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         var user = await _context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
@@ -107,6 +113,7 @@ public class AuthService : IAuthService
         {
             RevokeDescendantRefreshTokens(tokenEntity, user, ipAddress, $"Attempted reuse of revoked token: {refreshToken}");
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
             return Result<(AuthResponseDto Response, string RefreshToken)>.Failure("Invalid token.");
         }
 
@@ -119,6 +126,7 @@ public class AuthService : IAuthService
         user.RefreshTokens.Add(newRefreshToken);
 
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.Username);
         var response = new AuthResponseDto(accessToken, user.Username, user.Email);
