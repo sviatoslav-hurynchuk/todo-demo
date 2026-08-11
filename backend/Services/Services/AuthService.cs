@@ -93,7 +93,7 @@ public class AuthService : IAuthService
     public async Task<Result<(AuthResponseDto Response, string RefreshToken)>> RefreshTokenAsync(string refreshToken, string ipAddress)
     {
         var user = await _context.Users
-            .Include(u => u.RefreshTokens.Where(t => t.Token == refreshToken || t.IsActive))
+            .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
 
         if (user == null)

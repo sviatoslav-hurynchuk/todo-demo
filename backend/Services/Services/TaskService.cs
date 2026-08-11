@@ -144,6 +144,8 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> ToggleCompleteAsync(int id, int userId)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         var updatedRows = await _context.Tasks
             .Where(t => t.Id == id && t.UserId == userId)
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.IsCompleted, t => !t.IsCompleted));
@@ -153,7 +155,9 @@ public class TaskService : ITaskService
             throw new KeyNotFoundException($"Task with id {id} not found.");
         }
 
-        return await GetByIdAsync(id, userId);
+        var result = await GetByIdAsync(id, userId);
+        await transaction.CommitAsync();
+        return result;
     }
 
     private async Task<Category?> ValidateAndGetCategoryAsync(int? categoryId, int userId)

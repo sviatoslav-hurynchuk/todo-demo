@@ -28,7 +28,7 @@ public class TokenCleanupService : BackgroundService
 
                 var cutoffDate = DateTime.UtcNow.AddDays(-7);
                 var deletedCount = await dbContext.RefreshTokens
-                    .Where(t => t.ExpiresAt <= cutoffDate || (t.RevokedAt != null && t.RevokedAt <= cutoffDate))
+                    .Where(t => t.ExpiresAt <= cutoffDate)
                     .ExecuteDeleteAsync(stoppingToken);
 
                 if (deletedCount > 0)
