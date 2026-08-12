@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,11 +13,26 @@ import { AuthService } from '../../../core/services/auth.service';
 export class NavbarComponent {
   authService = inject(AuthService);
   private router = inject(Router);
+  private elementRef = inject(ElementRef);
 
   toggleSidebar = output<void>();
+  isProfilePopoverOpen = signal<boolean>(false);
 
   onToggleSidebar(): void {
     this.toggleSidebar.emit();
+  }
+
+  toggleProfilePopover(event: Event): void {
+    event.stopPropagation();
+    this.isProfilePopoverOpen.update(val => !val);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (this.isProfilePopoverOpen() && !this.elementRef.nativeElement.contains(target)) {
+      this.isProfilePopoverOpen.set(false);
+    }
   }
 
   logout(): void {
