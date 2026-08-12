@@ -65,6 +65,7 @@
       @for (task of tasks(); track task.id) {
         <app-task-item
           [task]="task"
+          [categories]="categories()"
           (toggleComplete)="onToggleComplete($event)"
           (toggleImportant)="onToggleImportant($event)"
           (editTask)="openEditTaskModal($event)"

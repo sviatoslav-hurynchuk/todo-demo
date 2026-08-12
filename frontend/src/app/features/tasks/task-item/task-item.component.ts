@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Task } from '../../../core/models/task.model';
+import { Category } from '../../../core/models/category.model';
 
 @Component({
   selector: 'app-task-item',
@@ -11,6 +12,20 @@ import { Task } from '../../../core/models/task.model';
 })
 export class TaskItemComponent {
   @Input({ required: true }) task!: Task;
+  @Input() categories: Category[] = [];
+
+  getCategoryColor(): string {
+    if (this.task.categoryColor) {
+      return this.task.categoryColor;
+    }
+    if (this.task.categoryId && this.categories.length > 0) {
+      const found = this.categories.find(c => c.id === this.task.categoryId);
+      if (found?.color) {
+        return found.color;
+      }
+    }
+    return '#2564cf';
+  }
 
   @Output() toggleComplete = new EventEmitter<number>();
   @Output() toggleImportant = new EventEmitter<Task>();
