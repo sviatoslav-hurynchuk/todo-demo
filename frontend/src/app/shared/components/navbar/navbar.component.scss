@@ -129,7 +129,7 @@
         width: max-content;
         max-width: calc(100vw - 32px);
         z-index: 100;
-        animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: popover-fade-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .popover-header {
@@ -197,7 +197,7 @@
   }
 }
 
-@keyframes popoverFadeIn {
+@keyframes popover-fade-in {
   from {
     opacity: 0;
     transform: translateY(-6px);
