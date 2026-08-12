@@ -4,11 +4,12 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { SidebarComponent, ActiveFilterType } from './sidebar/sidebar.component';
 import { CategoryFormComponent } from './category-form/category-form.component';
 import { TaskListComponent } from '../tasks/task-list/task-list.component';
+import { ToastContainerComponent } from '../../shared/components/toast-container/toast-container.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, SidebarComponent, CategoryFormComponent, TaskListComponent],
+  imports: [CommonModule, NavbarComponent, SidebarComponent, CategoryFormComponent, TaskListComponent, ToastContainerComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -46,6 +47,12 @@ export class DashboardComponent {
     }
     if (this.taskListComponent) {
       this.taskListComponent.loadCategories();
+    }
+  }
+
+  onTaskListChanged(): void {
+    if (this.sidebarComponent) {
+      this.sidebarComponent.loadCategories();
     }
   }
 }

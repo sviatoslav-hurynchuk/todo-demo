@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/services/task.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Task, CreateTaskRequest, UpdateTaskRequest, TaskQueryParams } from '../../../core/models/task.model';
 import { Category } from '../../../core/models/category.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
@@ -22,9 +23,11 @@ export class TaskListComponent implements OnInit, OnChanges {
   @Input() activeFilter: ActiveFilterType = 'all';
   @Input() selectedCategoryId: number | null = null;
   @Output() createCategoryClick = new EventEmitter<void>();
+  @Output() taskListChanged = new EventEmitter<void>();
 
   private taskService = inject(TaskService);
   private categoryService = inject(CategoryService);
+  private toastService = inject(ToastService);
 
   tasks = signal<Task[]>([]);
   totalCount = signal<number>(0);
@@ -111,8 +114,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         if (this.activeFilter === 'completed' || this.activeFilter === 'important') {
           this.loadTasks();
         }
+        this.toastService.showSuccess(updatedTask.isCompleted ? 'Task marked as completed! ✅' : 'Task marked as incomplete');
+        this.taskListChanged.emit();
       },
-      error: (err) => console.error('Failed to toggle task completion', err)
+      error: () => this.toastService.showError('Failed to toggle task status.')
     });
   }
 
@@ -132,8 +137,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         if (this.activeFilter === 'important') {
           this.loadTasks();
         }
+        this.toastService.showSuccess(updatedTask.isImportant ? 'Marked as important ⭐' : 'Removed from important');
+        this.taskListChanged.emit();
       },
-      error: (err) => console.error('Failed to toggle task importance', err)
+      error: () => this.toastService.showError('Failed to update task.')
     });
   }
 
@@ -158,8 +165,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.closeTaskModal();
         this.loadTasks();
         this.loadCategories();
+        this.toastService.showSuccess('Task created successfully! 🎉');
+        this.taskListChanged.emit();
       },
-      error: (err) => console.error('Failed to create task', err)
+      error: () => this.toastService.showError('Failed to create task.')
     });
   }
 
@@ -169,8 +178,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.closeTaskModal();
         this.loadTasks();
         this.loadCategories();
+        this.toastService.showSuccess('Task updated successfully!');
+        this.taskListChanged.emit();
       },
-      error: (err) => console.error('Failed to update task', err)
+      error: () => this.toastService.showError('Failed to update task.')
     });
   }
 
@@ -179,8 +190,10 @@ export class TaskListComponent implements OnInit, OnChanges {
       next: () => {
         this.loadTasks();
         this.loadCategories();
+        this.toastService.showInfo('Task deleted');
+        this.taskListChanged.emit();
       },
-      error: (err) => console.error('Failed to delete task', err)
+      error: () => this.toastService.showError('Failed to delete task.')
     });
   }
 
