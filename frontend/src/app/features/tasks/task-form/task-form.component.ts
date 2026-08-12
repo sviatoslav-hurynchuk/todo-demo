@@ -33,7 +33,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     this.openerElement = document.activeElement as HTMLElement | null;
     let defaultDueDate = '';
     if (this.task?.dueDate) {
-      defaultDueDate = new Date(this.task.dueDate).toISOString().split('T')[0];
+      defaultDueDate = this.task.dueDate;
     }
 
     this.taskForm = this.fb.group({
@@ -85,7 +85,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     const formValues = this.taskForm.value;
 
     const categoryIdVal = formValues.categoryId ? Number(formValues.categoryId) : null;
-    const dueDateVal = formValues.dueDate ? new Date(formValues.dueDate).toISOString() : null;
+    const dueDateVal = formValues.dueDate || null;
 
     if (this.task) {
       const updateDto: UpdateTaskRequest = {

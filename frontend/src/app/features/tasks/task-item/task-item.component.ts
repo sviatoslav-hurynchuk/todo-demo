@@ -57,14 +57,14 @@ export class TaskItemComponent {
   getDueDateStatus(): { text: string; statusClass: string } | null {
     if (!this.task.dueDate) return null;
 
-    const due = new Date(this.task.dueDate);
+    // Parse YYYY-MM-DD as local calendar date (no UTC conversion)
+    const [year, month, day] = this.task.dueDate.split('-').map(Number);
+    const dueLocal = new Date(year, month - 1, day);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const dueZero = new Date(due);
-    dueZero.setHours(0, 0, 0, 0);
-
-    const diffTime = dueZero.getTime() - today.getTime();
+    const diffTime = dueLocal.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
 
     if (diffDays < 0 && !this.task.isCompleted) {
@@ -74,7 +74,7 @@ export class TaskItemComponent {
     } else if (diffDays === 1) {
       return { text: 'Tomorrow', statusClass: 'tomorrow' };
     } else {
-      const formatted = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const formatted = dueLocal.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       return { text: formatted, statusClass: 'upcoming' };
     }
   }
