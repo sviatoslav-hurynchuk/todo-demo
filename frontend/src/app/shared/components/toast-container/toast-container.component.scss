@@ -44,7 +44,8 @@
   .toast-message {
     flex: 1;
     line-height: 1.4;
-    word-break: break-word;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .toast-close {

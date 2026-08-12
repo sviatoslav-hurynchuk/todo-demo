@@ -23,6 +23,8 @@ export class NavbarComponent {
   }
 
   toggleProfilePopover(event: Event): void {
+    // Popover is only visible on mobile (≤480px); ignore on desktop
+    if (window.innerWidth > 480) return;
     event.stopPropagation();
     this.isProfilePopoverOpen.update(val => !val);
   }
