@@ -1,7 +1,7 @@
 <div class="modal-backdrop" (click)="onClose()">
-  <div class="modal-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+  <div class="modal-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="task-form-title" (keydown.tab)="onTabKey($event)">
     <div class="modal-header">
-      <h2 class="modal-title">{{ task ? 'Edit Task' : 'Create Task' }}</h2>
+      <h2 id="task-form-title" class="modal-title">{{ task ? 'Edit Task' : 'Create Task' }}</h2>
       <button type="button" class="close-btn" (click)="onClose()" aria-label="Close modal">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../../core/models/task.model';
@@ -12,7 +12,7 @@ import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss']
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent implements OnInit, OnDestroy {
   @Input() task: Task | null = null;
   @Input() categories: Category[] = [];
   @Input() preselectedCategoryId: number | null = null;
@@ -24,9 +24,13 @@ export class TaskFormComponent implements OnInit {
   taskForm!: FormGroup;
   isSubmitting = signal<boolean>(false);
 
+  private elementRef = inject(ElementRef);
+  private openerElement: HTMLElement | null = null;
+
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.openerElement = document.activeElement as HTMLElement | null;
     let defaultDueDate = '';
     if (this.task?.dueDate) {
       defaultDueDate = new Date(this.task.dueDate).toISOString().split('T')[0];
@@ -44,6 +48,27 @@ export class TaskFormComponent implements OnInit {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.onClose();
+  }
+
+  ngOnDestroy(): void {
+    this.openerElement?.focus();
+  }
+
+  onTabKey(event: KeyboardEvent): void {
+    const modal = this.elementRef.nativeElement.querySelector('.modal-container') as HTMLElement;
+    const focusable = Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        'button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => !el.hasAttribute('disabled'));
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey) {
+      if (document.activeElement === first) { event.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
   }
 
   onClose(): void {
