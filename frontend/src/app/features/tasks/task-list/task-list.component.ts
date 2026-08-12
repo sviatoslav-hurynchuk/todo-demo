@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/services/task.service';
@@ -9,7 +9,7 @@ import { Category } from '../../../core/models/category.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
 import { TaskFormComponent } from '../task-form/task-form.component';
 import { ActiveFilterType } from '../../dashboard/sidebar/sidebar.component';
-import { Subject } from 'rxjs';
+import { Subject, switchMap } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
@@ -19,7 +19,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit, OnChanges {
+export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() activeFilter: ActiveFilterType = 'all';
   @Input() selectedCategoryId: number | null = null;
   @Output() createCategoryClick = new EventEmitter<void>();
@@ -41,54 +41,32 @@ export class TaskListComponent implements OnInit, OnChanges {
   isTaskModalOpen = signal<boolean>(false);
   selectedTaskForEdit = signal<Task | null>(null);
 
+  // Single stream for all load triggers; switchMap cancels in-flight requests
+  private loadTrigger$ = new Subject<void>();
   private searchSubject = new Subject<string>();
+  private initialized = false;
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadTasks();
 
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(query => {
-      this.searchQuery.set(query);
-      this.currentPage.set(1);
-      this.loadTasks();
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['activeFilter'] || changes['selectedCategoryId']) {
-      this.currentPage.set(1);
-      this.loadTasks();
-    }
-  }
-
-  loadCategories(): void {
-    this.categoryService.getAll().subscribe({
-      next: (cats) => this.categories.set(cats),
-      error: (err) => console.error('Failed to load categories', err)
-    });
-  }
-
-  loadTasks(): void {
-    this.isLoading.set(true);
-
-    const params: TaskQueryParams = {
-      page: this.currentPage(),
-      pageSize: this.pageSize(),
-      search: this.searchQuery() || undefined
-    };
-
-    if (this.activeFilter === 'important') {
-      params.isImportant = true;
-    } else if (this.activeFilter === 'completed') {
-      params.isCompleted = true;
-    } else if (this.activeFilter === 'category' && this.selectedCategoryId) {
-      params.categoryId = this.selectedCategoryId;
-    }
-
-    this.taskService.getAll(params).subscribe({
+    this.loadTrigger$.pipe(
+      switchMap(() => {
+        this.isLoading.set(true);
+        const params: TaskQueryParams = {
+          page: this.currentPage(),
+          pageSize: this.pageSize(),
+          search: this.searchQuery() || undefined
+        };
+        if (this.activeFilter === 'important') {
+          params.isImportant = true;
+        } else if (this.activeFilter === 'completed') {
+          params.isCompleted = true;
+        } else if (this.activeFilter === 'category' && this.selectedCategoryId) {
+          params.categoryId = this.selectedCategoryId;
+        }
+        return this.taskService.getAll(params);
+      })
+    ).subscribe({
       next: (res) => {
         this.tasks.set(res.items);
         this.totalCount.set(res.totalCount);
@@ -100,6 +78,43 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.isLoading.set(false);
       }
     });
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery.set(query);
+      this.currentPage.set(1);
+      this.loadTasks();
+    });
+
+    this.initialized = true;
+    this.loadTasks();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Skip the initial ngOnChanges that fires before ngOnInit
+    if (!this.initialized) return;
+    if (changes['activeFilter'] || changes['selectedCategoryId']) {
+      this.currentPage.set(1);
+      this.loadTasks();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.loadTrigger$.complete();
+    this.searchSubject.complete();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: (err) => console.error('Failed to load categories', err)
+    });
+  }
+
+  loadTasks(): void {
+    this.loadTrigger$.next();
   }
 
   onSearchInput(event: Event): void {
@@ -114,7 +129,7 @@ export class TaskListComponent implements OnInit, OnChanges {
         if (this.activeFilter === 'completed' || this.activeFilter === 'important') {
           this.loadTasks();
         }
-        this.toastService.showSuccess(updatedTask.isCompleted ? 'Task marked as completed! ✅' : 'Task marked as incomplete');
+        this.toastService.showSuccess(updatedTask.isCompleted ? 'Task marked as completed!' : 'Task marked as incomplete');
         this.taskListChanged.emit();
       },
       error: () => this.toastService.showError('Failed to toggle task status.')
@@ -137,10 +152,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         if (this.activeFilter === 'important') {
           this.loadTasks();
         }
-        this.toastService.showSuccess(updatedTask.isImportant ? 'Marked as important ⭐' : 'Removed from important');
+        this.toastService.showSuccess(updatedTask.isImportant ? 'Marked as important' : 'Removed from important');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to update task.')
+      error: () => this.toastService.showError('Failed to update task. Try again later.')
     });
   }
 
@@ -165,10 +180,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.closeTaskModal();
         this.loadTasks();
         this.loadCategories();
-        this.toastService.showSuccess('Task created successfully! 🎉');
+        this.toastService.showSuccess('Task created successfully!');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to create task.')
+      error: () => this.toastService.showError('Failed to create task. Try again later.')
     });
   }
 
@@ -181,19 +196,23 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.toastService.showSuccess('Task updated successfully!');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to update task.')
+      error: () => this.toastService.showError('Failed to update task. Try again later.')
     });
   }
 
   onTaskDeleted(taskId: number): void {
     this.taskService.delete(taskId).subscribe({
       next: () => {
+        // If deleting the only item on a page > 1, go back one page
+        if (this.tasks().length === 1 && this.currentPage() > 1) {
+          this.currentPage.update(p => p - 1);
+        }
         this.loadTasks();
         this.loadCategories();
         this.toastService.showInfo('Task deleted');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to delete task.')
+      error: () => this.toastService.showError('Failed to delete task. Try again later.')
     });
   }
 
