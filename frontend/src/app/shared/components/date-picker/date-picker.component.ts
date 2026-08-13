@@ -35,6 +35,7 @@ export interface CalendarDay {
 })
 export class DatePickerComponent implements ControlValueAccessor {
   @Input() placeholder: string = 'Select due date...';
+  @Input() ariaLabel: string = 'Date';
 
   private elementRef = inject(ElementRef);
 
@@ -102,11 +103,19 @@ export class DatePickerComponent implements ControlValueAccessor {
     }
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
+  // Scoped to the host — prevents the Escape from bubbling up and
+  // accidentally closing the parent modal when the calendar is open.
+  @HostListener('keydown.escape', ['$event'])
+  onEscape(event: KeyboardEvent): void {
     if (this.isOpen()) {
+      event.stopPropagation();
       this.close();
     }
+  }
+
+  getAriaLabel(): string {
+    const date = this.getFormattedDisplay();
+    return date ? `${this.ariaLabel}: ${date}` : this.ariaLabel;
   }
 
   prevMonth(event: Event): void {

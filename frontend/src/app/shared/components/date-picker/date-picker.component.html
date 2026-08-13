@@ -7,7 +7,9 @@
     [class.has-value]="!!value()"
     [disabled]="isDisabled()"
     (click)="toggleOpen($event)"
-    aria-label="Toggle calendar popup"
+    [attr.aria-label]="getAriaLabel()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="dialog"
   >
     <span class="display-text">{{ getFormattedDisplay() || placeholder }}</span>
     <span class="calendar-icon">
