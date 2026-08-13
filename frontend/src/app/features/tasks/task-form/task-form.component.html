@@ -60,13 +60,8 @@
         </div>
 
         <div class="form-group col">
-          <label for="task-duedate" class="form-label">Due Date</label>
-          <input
-            id="task-duedate"
-            type="date"
-            formControlName="dueDate"
-            class="form-control"
-          />
+          <label class="form-label">Due Date</label>
+          <app-date-picker formControlName="dueDate" placeholder="Select due date..."></app-date-picker>
         </div>
       </div>
 

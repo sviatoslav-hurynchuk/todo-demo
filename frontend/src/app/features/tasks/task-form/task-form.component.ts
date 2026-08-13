@@ -5,10 +5,12 @@ import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../../core/models
 import { Category } from '../../../core/models/category.model';
 import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
 
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
+
 @Component({
   selector: 'app-task-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent],
   templateUrl: './task-form.component.html',
   styleUrls: ['./task-form.component.scss']
 })
@@ -54,7 +56,8 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     this.openerElement?.focus();
   }
 
-  onTabKey(event: KeyboardEvent): void {
+  onTabKey(event: Event): void {
+    const keyEvent = event as KeyboardEvent;
     const modal = this.elementRef.nativeElement.querySelector('.modal-container') as HTMLElement;
     const focusable = Array.from(
       modal.querySelectorAll<HTMLElement>(
@@ -64,10 +67,10 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
-    if (event.shiftKey) {
-      if (document.activeElement === first) { event.preventDefault(); last.focus(); }
+    if (keyEvent.shiftKey) {
+      if (document.activeElement === first) { keyEvent.preventDefault(); last.focus(); }
     } else {
-      if (document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (document.activeElement === last) { keyEvent.preventDefault(); first.focus(); }
     }
   }
 
