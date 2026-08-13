@@ -85,6 +85,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting()) return;
     if (this.taskForm.invalid) {
       this.taskForm.markAllAsTouched();
       return;
