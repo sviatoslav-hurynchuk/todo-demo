@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../../core/models/task.model';
 import { Category } from '../../../core/models/category.model';
 import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
@@ -23,13 +23,19 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   @Output() taskUpdated = new EventEmitter<{ id: number; dto: UpdateTaskRequest }>();
   @Output() closeModal = new EventEmitter<void>();
 
-  taskForm!: FormGroup;
+  taskForm!: FormGroup<{
+    title: FormControl<string>;
+    description: FormControl<string>;
+    categoryId: FormControl<string>;
+    dueDate: FormControl<string>;
+    isImportant: FormControl<boolean>;
+  }>;
   isSubmitting = signal<boolean>(false);
 
   private elementRef = inject(ElementRef);
   private openerElement: HTMLElement | null = null;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: NonNullableFormBuilder) {}
 
   ngOnInit(): void {
     this.openerElement = document.activeElement as HTMLElement | null;
