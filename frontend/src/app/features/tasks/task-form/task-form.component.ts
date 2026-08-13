@@ -44,13 +44,20 @@ export class TaskFormComponent implements OnInit, OnDestroy {
       defaultDueDate = this.task.dueDate;
     }
 
+    const initialCategoryId = this.task?.categoryId ?? this.preselectedCategoryId;
+    const categoryIdStr = initialCategoryId !== null && initialCategoryId !== undefined ? String(initialCategoryId) : '';
+
     this.taskForm = this.fb.group({
       title: [this.task?.title || '', [Validators.required, Validators.maxLength(255), noWhitespaceValidator()]],
       description: [this.task?.description || '', [Validators.maxLength(2000)]],
-      categoryId: [this.task?.categoryId ?? this.preselectedCategoryId ?? ''],
+      categoryId: [categoryIdStr],
       dueDate: [defaultDueDate],
       isImportant: [this.task?.isImportant || false]
     });
+  }
+
+  resetSubmitting(): void {
+    this.isSubmitting.set(false);
   }
 
   @HostListener('document:keydown.escape')

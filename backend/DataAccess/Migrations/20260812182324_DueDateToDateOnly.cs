@@ -12,18 +12,16 @@ namespace TodoApp.DataAccess.Migrations
         {
             // Normalize existing DueDate values from DateTime format (yyyy-MM-dd HH:mm:ss.FFFFFFF)
             // to DateOnly format (yyyy-MM-dd). NULL values are preserved.
-            // Invalid values that cannot be parsed by SQLite's date() function are set to NULL
-            // rather than left in a state that would cause a runtime FormatException on read.
+            // Invalid calendar dates (e.g., Feb 30, 2025-02-29) or unparseable text values
+            // are explicitly set to NULL to prevent runtime FormatException on materialization.
             migrationBuilder.Sql(@"
                 UPDATE Tasks
-                SET DueDate = date(DueDate)
-                WHERE DueDate IS NOT NULL
-                  AND date(DueDate) IS NOT NULL;
-
-                UPDATE Tasks
-                SET DueDate = NULL
-                WHERE DueDate IS NOT NULL
-                  AND date(DueDate) IS NULL;
+                SET DueDate = CASE
+                    WHEN date(DueDate, '+0 days') IS NOT NULL AND date(DueDate, '+0 days') = substr(DueDate, 1, 10)
+                    THEN date(DueDate)
+                    ELSE NULL
+                END
+                WHERE DueDate IS NOT NULL;
             ");
         }
 

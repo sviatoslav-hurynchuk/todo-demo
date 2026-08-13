@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject, DestroyRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject, DestroyRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/services/task.service';
@@ -9,7 +9,7 @@ import { Category } from '../../../core/models/category.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
 import { TaskFormComponent } from '../task-form/task-form.component';
 import { ActiveFilterType } from '../../dashboard/sidebar/sidebar.component';
-import { Subject, switchMap } from 'rxjs';
+import { Subject, switchMap, catchError, EMPTY } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntilDestroyed } from 'rxjs/operators';
 
 @Component({
@@ -41,6 +41,7 @@ export class TaskListComponent implements OnInit, OnChanges {
 
   isTaskModalOpen = signal<boolean>(false);
   selectedTaskForEdit = signal<Task | null>(null);
+  @ViewChild(TaskFormComponent) taskFormComponent?: TaskFormComponent;
 
   // Single stream for all load triggers; switchMap cancels in-flight requests
   private loadTrigger$ = new Subject<void>();
@@ -65,7 +66,13 @@ export class TaskListComponent implements OnInit, OnChanges {
         } else if (this.activeFilter === 'category' && this.selectedCategoryId) {
           params.categoryId = this.selectedCategoryId;
         }
-        return this.taskService.getAll(params);
+        return this.taskService.getAll(params).pipe(
+          catchError((err) => {
+            console.error('Failed to load tasks', err);
+            this.isLoading.set(false);
+            return EMPTY;
+          })
+        );
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -73,10 +80,6 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.tasks.set(res.items);
         this.totalCount.set(res.totalCount);
         this.totalPages.set(res.totalPages);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load tasks', err);
         this.isLoading.set(false);
       }
     });
@@ -181,7 +184,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.toastService.showSuccess('Task created successfully!');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to create task. Try again later.')
+      error: () => {
+        this.toastService.showError('Failed to create task. Try again later.');
+        this.taskFormComponent?.resetSubmitting();
+      }
     });
   }
 
@@ -194,7 +200,10 @@ export class TaskListComponent implements OnInit, OnChanges {
         this.toastService.showSuccess('Task updated successfully!');
         this.taskListChanged.emit();
       },
-      error: () => this.toastService.showError('Failed to update task. Try again later.')
+      error: () => {
+        this.toastService.showError('Failed to update task. Try again later.');
+        this.taskFormComponent?.resetSubmitting();
+      }
     });
   }
 
