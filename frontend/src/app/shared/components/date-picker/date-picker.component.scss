@@ -1,0 +1,237 @@
+.date-picker-wrapper {
+  position: relative;
+  width: 100%;
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.date-picker-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+
+  .display-text {
+    flex: 1;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &.has-value .display-text {
+    color: #111827;
+    font-weight: 500;
+  }
+
+  .calendar-icon {
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:focus-visible,
+  &.active {
+    border-color: #2564cf;
+    outline: 2px solid #2564cf;
+    outline-offset: 2px;
+  }
+}
+
+.calendar-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+  padding: 14px;
+  width: 280px;
+  box-sizing: border-box;
+  animation: calendar-popover-fade-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    .month-year-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: #4b5563;
+      font-size: 18px;
+      font-weight: 700;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+      }
+    }
+  }
+
+  .days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 6px;
+
+    .day-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      padding: 4px 0;
+    }
+  }
+
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 10px;
+
+    .day-cell {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #111827;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background-color: #eff6ff;
+        color: #2564cf;
+      }
+
+      &.other-month {
+        color: #d1d5db;
+      }
+
+      &.today {
+        font-weight: 700;
+        color: #2564cf;
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 3px;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background-color: #2564cf;
+        }
+      }
+
+      &.selected {
+        background-color: #2564cf;
+        color: #fff;
+        font-weight: 700;
+
+        &::after {
+          background-color: #fff;
+        }
+
+        &:hover {
+          background-color: #1d4ed8;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .calendar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid #f3f4f6;
+
+    .footer-btn {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+
+      &.clear-btn {
+        color: #ef4444;
+
+        &:hover:not(:disabled) {
+          background-color: #fef2f2;
+        }
+
+        &:disabled {
+          color: #d1d5db;
+          cursor: not-allowed;
+        }
+      }
+
+      &.today-btn {
+        color: #2564cf;
+
+        &:hover {
+          background-color: #eff6ff;
+        }
+      }
+    }
+  }
+}
+
+@keyframes calendar-popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

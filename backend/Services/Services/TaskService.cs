@@ -58,7 +58,8 @@ public class TaskService : ITaskService
                 t.IsImportant,
                 t.DueDate,
                 t.CategoryId,
-                t.Category != null ? t.Category.Name : null
+                t.Category != null ? t.Category.Name : null,
+                t.Category != null ? t.Category.Color : null
             ))
             .ToListAsync();
 
@@ -186,6 +187,7 @@ public class TaskService : ITaskService
         task.IsImportant,
         task.DueDate,
         task.CategoryId,
-        task.Category?.Name
+        task.Category?.Name,
+        task.Category?.Color
     );
 }

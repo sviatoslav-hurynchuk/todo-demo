@@ -2,6 +2,10 @@
   <app-navbar (toggleSidebar)="toggleSidebar()"></app-navbar>
 
   <div class="dashboard-body">
+    @if (isSidebarOpen()) {
+      <div class="sidebar-backdrop" (click)="toggleSidebar()"></div>
+    }
+
     <aside class="sidebar-container" [class.open]="isSidebarOpen()">
       <app-sidebar
         (filterChange)="onFilterChange($event)"
@@ -10,17 +14,12 @@
     </aside>
 
     <main class="main-content">
-      <div class="content-placeholder">
-        <h2>
-          @switch (activeFilter()) {
-            @case ('all') { All Tasks }
-            @case ('important') { Important Tasks }
-            @case ('completed') { Completed Tasks }
-            @case ('category') { Category Tasks }
-          }
-        </h2>
-        <p>TaskList coming in next step</p>
-      </div>
+      <app-task-list
+        [activeFilter]="activeFilter()"
+        [selectedCategoryId]="selectedCategoryId()"
+        (createCategoryClick)="openCategoryModal()"
+        (taskListChanged)="onTaskListChanged()"
+      ></app-task-list>
     </main>
   </div>
 
@@ -30,4 +29,6 @@
       (closeModal)="closeCategoryModal()"
     ></app-category-form>
   }
+
+  <app-toast-container></app-toast-container>
 </div>

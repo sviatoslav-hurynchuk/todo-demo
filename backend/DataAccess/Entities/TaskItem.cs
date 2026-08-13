@@ -7,7 +7,7 @@ public class TaskItem
     public string? Description { get; set; }
     public bool IsCompleted { get; set; }
     public bool IsImportant { get; set; }
-    public DateTime? DueDate { get; set; }
+    public DateOnly? DueDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public int? CategoryId { get; set; }

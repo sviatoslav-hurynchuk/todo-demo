@@ -1,0 +1,92 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="task-form-title" (keydown.tab)="onTabKey($event)">
+    <div class="modal-header">
+      <h2 id="task-form-title" class="modal-title">{{ task ? 'Edit Task' : 'Create Task' }}</h2>
+      <button type="button" class="close-btn" (click)="onClose()" aria-label="Close modal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-group">
+        <label for="task-title" class="form-label">Task Title <span class="required">*</span></label>
+        <input
+          id="task-title"
+          type="text"
+          formControlName="title"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('title')"
+          placeholder="What needs to be done?"
+          autofocus
+        />
+        @if (isFieldInvalid('title')) {
+          <div class="error-message">
+            @if (taskForm.get('title')?.errors?.['required'] || taskForm.get('title')?.errors?.['whitespace']) {
+              Task title is required.
+            }
+            @if (taskForm.get('title')?.errors?.['maxlength']) {
+              Title cannot exceed 255 characters.
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="task-description" class="form-label">Description</label>
+        <textarea
+          id="task-description"
+          formControlName="description"
+          class="form-control textarea"
+          rows="3"
+          placeholder="Add details, subtasks, or notes..."
+        ></textarea>
+        @if (isFieldInvalid('description')) {
+          <div class="error-message">Description cannot exceed 2000 characters.</div>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col">
+          <label for="task-category" class="form-label">Category</label>
+          <select id="task-category" formControlName="categoryId" class="form-control select">
+            <option value="">No Category</option>
+            @for (cat of categories; track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group col">
+          <label class="form-label">Due Date</label>
+          <app-date-picker formControlName="dueDate" placeholder="Select due date..." ariaLabel="Due date"></app-date-picker>
+        </div>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label class="toggle-label">
+          <input type="checkbox" formControlName="isImportant" class="toggle-input" />
+          <span class="star-icon" [class.active]="taskForm.get('isImportant')?.value">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" [attr.fill]="taskForm.get('isImportant')?.value ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </span>
+          Mark as Important
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="spinner"></span> Saving...
+          } @else {
+            {{ task ? 'Save Changes' : 'Create Task' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

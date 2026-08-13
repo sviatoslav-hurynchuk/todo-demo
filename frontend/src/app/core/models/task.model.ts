@@ -7,6 +7,7 @@ export interface Task {
   dueDate: string | null;
   categoryId: number | null;
   categoryName: string | null;
+  categoryColor: string | null;
 }
 
 export interface CreateTaskRequest {

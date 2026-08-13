@@ -8,15 +8,16 @@ public record TaskDto(
     string? Description,
     bool IsCompleted,
     bool IsImportant,
-    DateTime? DueDate,
+    DateOnly? DueDate,
     int? CategoryId,
-    string? CategoryName
+    string? CategoryName,
+    string? CategoryColor = null
 );
 
 public record CreateTaskDto(
     [Required, MinLength(1), MaxLength(255)] string Title,
     [MaxLength(2000)] string? Description,
-    DateTime? DueDate,
+    DateOnly? DueDate,
     int? CategoryId,
     bool IsImportant = false
 );
@@ -26,7 +27,7 @@ public record UpdateTaskDto(
     [MaxLength(2000)] string? Description,
     bool IsCompleted,
     bool IsImportant,
-    DateTime? DueDate,
+    DateOnly? DueDate,
     int? CategoryId
 );
 

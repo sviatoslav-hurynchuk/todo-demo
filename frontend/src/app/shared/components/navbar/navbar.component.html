@@ -17,12 +17,31 @@
 
   <div class="navbar-right">
     @if (authService.currentUser()) {
-      <div class="user-info">
-        <span class="material-icons user-avatar">account_circle</span>
-        <div class="user-details">
-          <span class="username">{{ authService.currentUser()?.username }}</span>
-          <span class="email">{{ authService.currentUser()?.email }}</span>
-        </div>
+      <div class="user-info-wrapper">
+        <button
+          type="button"
+          class="user-info"
+          (click)="toggleProfilePopover($event)"
+          aria-label="User profile info"
+        >
+          <span class="material-icons user-avatar">account_circle</span>
+          <div class="user-details">
+            <span class="username">{{ authService.currentUser()?.username }}</span>
+            <span class="email">{{ authService.currentUser()?.email }}</span>
+          </div>
+        </button>
+
+        @if (isProfilePopoverOpen()) {
+          <div class="profile-popover" role="dialog" aria-label="User Details">
+            <div class="popover-header">
+              <span class="material-icons popover-avatar">account_circle</span>
+              <div class="popover-user-details">
+                <span class="popover-username">{{ authService.currentUser()?.username }}</span>
+                <span class="popover-email">{{ authService.currentUser()?.email }}</span>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     }
 

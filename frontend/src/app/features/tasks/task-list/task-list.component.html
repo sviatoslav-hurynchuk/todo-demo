@@ -1,0 +1,113 @@
+<div class="task-list-container">
+  <!-- Toolbar Header -->
+  <div class="task-list-header">
+    <div class="header-title-section">
+      <h1 class="header-title">{{ getHeaderTitle() }}</h1>
+      <span class="task-count-badge">{{ totalCount() }} {{ totalCount() === 1 ? 'task' : 'tasks' }}</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Search Input -->
+      <div class="search-box">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          aria-label="Search tasks"
+          placeholder="Search tasks..."
+          (input)="onSearchInput($event)"
+        />
+      </div>
+
+      <!-- Add Task Button -->
+      <button type="button" class="add-task-btn" (click)="openCreateTaskModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading tasks...</p>
+    </div>
+  } @else if (tasks().length === 0) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </div>
+      <h3>No tasks found</h3>
+      <p>
+        @if (searchQuery()) {
+          No tasks match your search "{{ searchQuery() }}". Try a different query.
+        } @else {
+          You don't have any tasks in this view yet. Click "Add Task" to create one!
+        }
+      </p>
+      <button type="button" class="add-task-btn secondary" (click)="openCreateTaskModal()">
+        + Create А New Task
+      </button>
+    </div>
+  } @else {
+    <!-- Tasks Grid / List -->
+    <div class="tasks-grid">
+      @for (task of tasks(); track task.id) {
+        <app-task-item
+          [task]="task"
+          [categories]="categories()"
+          (toggleComplete)="onToggleComplete($event)"
+          (toggleImportant)="onToggleImportant($event)"
+          (editTask)="openEditTaskModal($event)"
+          (deleteTask)="onTaskDeleted($event)"
+        ></app-task-item>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Task Form Modal -->
+  @if (isTaskModalOpen()) {
+    <app-task-form
+      [task]="selectedTaskForEdit()"
+      [categories]="categories()"
+      [preselectedCategoryId]="selectedCategoryId"
+      (taskCreated)="onTaskCreated($event)"
+      (taskUpdated)="onTaskUpdated($event)"
+      (closeModal)="closeTaskModal()"
+    ></app-task-form>
+  }
+</div>

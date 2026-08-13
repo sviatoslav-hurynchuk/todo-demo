@@ -1,15 +1,9 @@
 import { Component, inject, signal, output, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/category.model';
-
-export function noWhitespaceValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const isWhitespace = (control.value || '').trim().length === 0;
-    return !isWhitespace ? null : { whitespace: true };
-  };
-}
+import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
 
 @Component({
   selector: 'app-category-form',
