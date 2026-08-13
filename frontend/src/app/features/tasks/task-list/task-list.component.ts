@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/services/task.service';
@@ -10,7 +10,7 @@ import { TaskItemComponent } from '../task-item/task-item.component';
 import { TaskFormComponent } from '../task-form/task-form.component';
 import { ActiveFilterType } from '../../dashboard/sidebar/sidebar.component';
 import { Subject, switchMap } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntilDestroyed } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-list',
@@ -19,7 +19,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
+export class TaskListComponent implements OnInit, OnChanges {
   @Input() activeFilter: ActiveFilterType = 'all';
   @Input() selectedCategoryId: number | null = null;
   @Output() createCategoryClick = new EventEmitter<void>();
@@ -28,6 +28,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   private taskService = inject(TaskService);
   private categoryService = inject(CategoryService);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   tasks = signal<Task[]>([]);
   totalCount = signal<number>(0);
@@ -65,7 +66,8 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
           params.categoryId = this.selectedCategoryId;
         }
         return this.taskService.getAll(params);
-      })
+      }),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res) => {
         this.tasks.set(res.items);
@@ -81,7 +83,8 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
 
     this.searchSubject.pipe(
       debounceTime(300),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(query => {
       this.searchQuery.set(query);
       this.currentPage.set(1);
@@ -99,11 +102,6 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
       this.currentPage.set(1);
       this.loadTasks();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.loadTrigger$.complete();
-    this.searchSubject.complete();
   }
 
   loadCategories(): void {
