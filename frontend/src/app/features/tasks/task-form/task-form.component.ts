@@ -99,7 +99,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmitting.set(true);
-    const formValues = this.taskForm.value;
+    const formValues = this.taskForm.getRawValue();
 
     const categoryIdVal = formValues.categoryId ? Number(formValues.categoryId) : null;
     const dueDateVal = formValues.dueDate || null;

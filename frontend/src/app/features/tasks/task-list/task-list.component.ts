@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, signal, inject, DestroyRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, inject, DestroyRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TaskService } from '../../../core/services/task.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -10,7 +11,7 @@ import { TaskItemComponent } from '../task-item/task-item.component';
 import { TaskFormComponent } from '../task-form/task-form.component';
 import { ActiveFilterType } from '../../dashboard/sidebar/sidebar.component';
 import { Subject, switchMap, catchError, EMPTY } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntilDestroyed } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-list',
@@ -67,7 +68,7 @@ export class TaskListComponent implements OnInit, OnChanges {
           params.categoryId = this.selectedCategoryId;
         }
         return this.taskService.getAll(params).pipe(
-          catchError((err) => {
+          catchError((err: unknown) => {
             console.error('Failed to load tasks', err);
             this.isLoading.set(false);
             return EMPTY;
@@ -88,7 +89,7 @@ export class TaskListComponent implements OnInit, OnChanges {
       debounceTime(300),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(query => {
+    ).subscribe((query: string) => {
       this.searchQuery.set(query);
       this.currentPage.set(1);
       this.loadTasks();

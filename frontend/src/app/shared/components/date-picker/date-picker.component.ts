@@ -106,7 +106,7 @@ export class DatePickerComponent implements ControlValueAccessor {
   // Scoped to the host — prevents the Escape from bubbling up and
   // accidentally closing the parent modal when the calendar is open.
   @HostListener('keydown.escape', ['$event'])
-  onEscape(event: KeyboardEvent): void {
+  onEscape(event: Event): void {
     if (this.isOpen()) {
       event.stopPropagation();
       this.close();
