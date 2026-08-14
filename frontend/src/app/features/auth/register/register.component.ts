@@ -45,7 +45,11 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error?.message || 'Registration failed. Please check your details.');
+        if (err.status === 0) {
+          this.errorMessage.set('Unable to connect to the service. Please check your connection and try again.');
+        } else {
+          this.errorMessage.set(err.error?.message || 'Registration failed. Please check your details.');
+        }
       }
     });
   }

@@ -44,7 +44,11 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error?.message || 'Wrong email or password.');
+        if (err.status === 0) {
+          this.errorMessage.set('Unable to connect to the service. Please check your connection and try again.');
+        } else {
+          this.errorMessage.set(err.error?.message || 'Invalid email or password.');
+        }
       }
     });
   }
