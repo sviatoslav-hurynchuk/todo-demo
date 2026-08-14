@@ -24,7 +24,13 @@
 
   <!-- Calendar Popover Dropdown -->
   @if (isOpen()) {
-    <div class="calendar-popover" role="dialog" aria-label="Date Picker Calendar">
+    <div
+      class="calendar-popover"
+      [class.direction-up]="openDirection() === 'up'"
+      [class.direction-down]="openDirection() === 'down'"
+      role="dialog"
+      aria-label="Date Picker Calendar"
+    >
       <!-- Calendar Header -->
       <div class="calendar-header">
         <button

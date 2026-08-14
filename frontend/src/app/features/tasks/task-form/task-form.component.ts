@@ -38,6 +38,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   constructor(private fb: NonNullableFormBuilder) {}
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
     this.openerElement = document.activeElement as HTMLElement | null;
     let defaultDueDate = '';
     if (this.task?.dueDate) {
@@ -66,6 +67,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.style.overflow = '';
     this.openerElement?.focus();
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, output, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, output, HostListener, ViewChild, ElementRef, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
@@ -12,7 +12,7 @@ import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.
   templateUrl: './category-form.component.html',
   styleUrls: ['./category-form.component.scss']
 })
-export class CategoryFormComponent implements AfterViewInit {
+export class CategoryFormComponent implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder).nonNullable;
   private categoryService = inject(CategoryService);
   private elementRef = inject(ElementRef);
@@ -41,10 +41,18 @@ export class CategoryFormComponent implements AfterViewInit {
     color: ['#3B82F6', [Validators.required]]
   });
 
+  ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
+  }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.nameInput?.nativeElement?.focus();
     }, 0);
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
   }
 
   @HostListener('document:keydown.escape')
