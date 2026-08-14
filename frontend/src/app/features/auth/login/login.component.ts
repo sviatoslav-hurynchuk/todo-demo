@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -42,12 +43,17 @@ export class LoginComponent {
         this.isLoading.set(false);
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
-        if (err.status === 0) {
-          this.errorMessage.set('Unable to connect to the service. Please check your connection and try again.');
+        if (err instanceof HttpErrorResponse) {
+          if (err.status === 0) {
+            this.errorMessage.set('Unable to connect to the service. Please check your connection and try again.');
+          } else {
+            const message = typeof err.error?.message === 'string' ? err.error.message : null;
+            this.errorMessage.set(message || 'Invalid email or password.');
+          }
         } else {
-          this.errorMessage.set(err.error?.message || 'Invalid email or password.');
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
         }
       }
     });

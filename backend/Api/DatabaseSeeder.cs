@@ -12,6 +12,7 @@ namespace TodoApp.Api;
 public static class DatabaseSeeder
 {
     private const int Seed = 42; // Fixed seed for reproducible data
+    private static readonly DateTime SeedReferenceUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     public static async Task SeedAsync(AppDbContext db)
     {
@@ -27,7 +28,7 @@ public static class DatabaseSeeder
             Username = "demo",
             Email = "demo@todoapp.com",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
-            CreatedAt = DateTime.UtcNow.AddDays(-90)
+            CreatedAt = SeedReferenceUtc.AddDays(-90)
         };
 
         db.Users.Add(demoUser);
@@ -46,27 +47,28 @@ public static class DatabaseSeeder
         db.Categories.AddRange(categories);
         await db.SaveChangesAsync(); // Save to get CategoryIds
 
-        // ── 3. Generate tasks with Bogus ─────────────────────────────────
+        // ── 3. Generate 40 unique tasks with Bogus ───────────────────────
+        var selectedTitles = GetTaskTitles().Take(40).ToList();
+
         var taskFaker = new Faker<TaskItem>()
             .RuleFor(t => t.UserId, _ => demoUser.Id)
-            .RuleFor(t => t.Title, f => f.PickRandom(GetTaskTitles()))
             .RuleFor(t => t.Description, f => f.Random.Bool(0.6f) ? f.Lorem.Sentence(8, 15) : null)
             .RuleFor(t => t.IsCompleted, f => f.Random.Bool(0.25f))
             .RuleFor(t => t.IsImportant, f => f.Random.Bool(0.2f))
             .RuleFor(t => t.DueDate, f => f.Random.Bool(0.65f)
-                ? DateOnly.FromDateTime(f.Date.Between(DateTime.Now.AddDays(-10), DateTime.Now.AddDays(60)))
+                ? DateOnly.FromDateTime(f.Date.Between(SeedReferenceUtc.AddDays(-10), SeedReferenceUtc.AddDays(60)))
                 : null)
             .RuleFor(t => t.CategoryId, f => f.Random.Bool(0.8f)
                 ? f.PickRandom(categories).Id
                 : null)
-            .RuleFor(t => t.CreatedAt, f => f.Date.Recent(60, DateTime.UtcNow));
+            .RuleFor(t => t.CreatedAt, f => f.Date.Recent(60, SeedReferenceUtc));
 
-        // Generate 40 unique tasks (deduplicate titles)
-        var tasks = taskFaker.Generate(60)
-            .GroupBy(t => t.Title)
-            .Select(g => g.First())
-            .Take(40)
-            .ToList();
+        var tasks = selectedTitles.Select(title =>
+        {
+            var task = taskFaker.Generate();
+            task.Title = title;
+            return task;
+        }).ToList();
 
         db.Tasks.AddRange(tasks);
         await db.SaveChangesAsync();

@@ -36,12 +36,15 @@ export class CategoryFormComponent implements OnInit, AfterViewInit, OnDestroy {
     '#6B7280'  // Gray
   ];
 
+  private previousOverflow: string = '';
+
   categoryForm = this.fb.group({
     name: ['', [Validators.required, noWhitespaceValidator(), Validators.maxLength(50)]],
     color: ['#3B82F6', [Validators.required]]
   });
 
   ngOnInit(): void {
+    this.previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
   }
 
@@ -52,7 +55,7 @@ export class CategoryFormComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.body.style.overflow = '';
+    document.body.style.overflow = this.previousOverflow;
   }
 
   @HostListener('document:keydown.escape')
