@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TodoApp.Api;
 using TodoApp.Api.Middleware;
 using TodoApp.DataAccess.Data;
 using TodoApp.Interfaces;
@@ -129,6 +130,11 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
+
+    if (app.Environment.IsDevelopment())
+    {
+        await DatabaseSeeder.SeedAsync(dbContext);
+    }
 }
 
 app.UseExceptionHandler();

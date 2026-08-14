@@ -78,6 +78,8 @@ export class DatePickerComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
+  openDirection = signal<'down' | 'up'>('down');
+
   setDisabledState(isDisabled: boolean): void {
     this.isDisabled.set(isDisabled);
   }
@@ -85,9 +87,27 @@ export class DatePickerComponent implements ControlValueAccessor {
   toggleOpen(event: Event): void {
     event.stopPropagation();
     if (this.isDisabled()) return;
-    this.isOpen.update(open => !open);
-    if (this.isOpen()) {
+
+    if (!this.isOpen()) {
+      this.calculateDirection();
+      this.isOpen.set(true);
       this.onTouched();
+    } else {
+      this.isOpen.set(false);
+    }
+  }
+
+  private calculateDirection(): void {
+    if (typeof window === 'undefined') return;
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const popoverEstimatedHeight = 310;
+
+    if (spaceBelow < popoverEstimatedHeight && spaceAbove >= spaceBelow) {
+      this.openDirection.set('up');
+    } else {
+      this.openDirection.set('down');
     }
   }
 
@@ -106,7 +126,7 @@ export class DatePickerComponent implements ControlValueAccessor {
   // Scoped to the host — prevents the Escape from bubbling up and
   // accidentally closing the parent modal when the calendar is open.
   @HostListener('keydown.escape', ['$event'])
-  onEscape(event: KeyboardEvent): void {
+  onEscape(event: Event): void {
     if (this.isOpen()) {
       event.stopPropagation();
       this.close();

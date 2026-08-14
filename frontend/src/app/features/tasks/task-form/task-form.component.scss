@@ -3,11 +3,14 @@
   inset: 0;
   background-color: rgba(0, 0, 0, 0.4);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   z-index: 100;
-  padding: 20px;
+  padding: 16px;
   animation: fade-in 0.2s ease-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-container {
@@ -18,10 +21,14 @@
   width: 100%;
   max-width: 480px;
   box-sizing: border-box;
-  max-height: calc(100vh - 40px);
-  max-height: calc(100dvh - 40px);
-  overflow-y: auto;
+  position: relative;
+  overflow: visible;
   animation: scale-up 0.2s ease-out;
+  margin: auto;
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+  }
 }
 
 .modal-header {
@@ -93,6 +100,12 @@
 
   .col {
     flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 16px;
   }
 }
 

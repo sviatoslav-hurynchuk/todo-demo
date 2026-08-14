@@ -34,10 +34,13 @@ export class TaskFormComponent implements OnInit, OnDestroy {
 
   private elementRef = inject(ElementRef);
   private openerElement: HTMLElement | null = null;
+  private previousOverflow: string = '';
 
   constructor(private fb: NonNullableFormBuilder) {}
 
   ngOnInit(): void {
+    this.previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     this.openerElement = document.activeElement as HTMLElement | null;
     let defaultDueDate = '';
     if (this.task?.dueDate) {
@@ -66,6 +69,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.body.style.overflow = this.previousOverflow;
     this.openerElement?.focus();
   }
 
@@ -99,7 +103,7 @@ export class TaskFormComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmitting.set(true);
-    const formValues = this.taskForm.value;
+    const formValues = this.taskForm.getRawValue();
 
     const categoryIdVal = formValues.categoryId ? Number(formValues.categoryId) : null;
     const dueDateVal = formValues.dueDate || null;

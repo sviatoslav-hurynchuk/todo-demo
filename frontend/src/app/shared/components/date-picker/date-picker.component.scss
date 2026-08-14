@@ -64,8 +64,7 @@
 
 .calendar-popover {
   position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
+  right: 0;
   z-index: 200;
   background: #fff;
   border-radius: 10px;
@@ -73,9 +72,29 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
   padding: 14px;
   width: 280px;
+  max-width: calc(100vw - 32px);
   box-sizing: border-box;
-  animation: calendar-popover-fade-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+
+  &.direction-down {
+    top: calc(100% + 6px);
+    bottom: auto;
+    animation: calendar-popover-fade-in-down 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &.direction-up {
+    bottom: calc(100% + 6px);
+    top: auto;
+    animation: calendar-popover-fade-in-up 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (max-width: 480px) {
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 10px;
+  }
 
   .calendar-header {
     display: flex;
@@ -225,10 +244,21 @@
   }
 }
 
-@keyframes calendar-popover-fade-in {
+@keyframes calendar-popover-fade-in-down {
   from {
     opacity: 0;
     transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes calendar-popover-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;

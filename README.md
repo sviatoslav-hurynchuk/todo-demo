@@ -4,6 +4,18 @@ A production-oriented To-Do application built with **ASP.NET Core 10 Web API** (
 
 ---
 
+## UI Showcase
+
+| Main Dashboard & Task List | Task Form & DatePicker |
+| :---: | :---: |
+| ![Main Dashboard](https://github.com/user-attachments/assets/21f37ee7-9d42-4004-9165-0aa3ffddd62b) | ![Task Form](https://github.com/user-attachments/assets/5e036d1c-1968-4526-bd4d-d981806ecb60) |
+
+| Category Management | Mobile View |
+| :---: | :---: |
+| ![Categories](https://github.com/user-attachments/assets/ba892bcd-c0fc-4f9b-b3c5-284aa2f4a13d) | ![Mobile View](https://github.com/user-attachments/assets/28e26d04-6c7d-4286-8bbd-dc31cb0b2974) |
+
+---
+
 ## 1. System Architecture
 
 The solution adheres strictly to a 4-layer (N-Tier) separation of concerns:
